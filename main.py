@@ -1,7 +1,7 @@
 
 def ListCreator(listLen):
 	newList = []
-	for i in range(listLen):
+	for i in range(1, listLen + 1):
 		newList.append(i)
 	return(newList)
 
