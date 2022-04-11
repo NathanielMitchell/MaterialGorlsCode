@@ -35,25 +35,25 @@ class Home(Frame):
         Frame.__init__(self, parent)
 
         label = Label(self, text ="Home Page")
-        label.grid(row=0, column=4, padx=10, pady=10)
+        label.grid(row=0, column=2, padx=10, pady=10)
 
-        button1 = Button(self, text="Shelf 1", command = lambda: controller.showFrame(One))
+        button1 = Button(self, text="Shelf 1", background="pink", command = lambda: controller.showFrame(One))
         button1.grid(row=1, column=1, padx=10, pady=10)
 
-        button2 = Button(self, text="Shelf 2", command = lambda: controller.showFrame(Two))
+        button2 = Button(self, text="Shelf 2", background="pink", command = lambda: controller.showFrame(Two))
         button2.grid(row=2, column=1, padx=10, pady=10)
 
-        button3 = Button(self, text="Shelf 3", command = lambda: controller.showFrame(Three))
-        button3.grid(row=3, column=1, padx=10, pady=10)
+        button3 = Button(self, text="Shelf 3", background="pink", command = lambda: controller.showFrame(Three))
+        button3.grid(row=1, column=2, padx=10, pady=10)
 
-        button4 = Button(self, text="Shaelf 4", command = lambda: controller.showFrame(Four))
-        button4.grid(row=1, column=2, padx=10, pady=10)
+        button4 = Button(self, text="Shelf 4", background="pink", command = lambda: controller.showFrame(Four))
+        button4.grid(row=2, column=2, padx=10, pady=10)
 
-        button5 = Button(self, text="Shelf 5", command = lambda: controller.showFrame(Five))
-        button5.grid(row=2, column=2, padx=10, pady=10)
+        button5 = Button(self, text="Shelf 5", background="pink", command = lambda: controller.showFrame(Five))
+        button5.grid(row=1, column=3, padx=10, pady=10)
 
-        button6 = Button(self, text="Shelf 6", command = lambda: controller.showFrame(Six))
-        button6.grid(row=3, column=2, padx=10, pady=10)
+        button6 = Button(self, text="Shelf 6", background="pink", command = lambda: controller.showFrame(Six))
+        button6.grid(row=2, column=3, padx=10, pady=10)
 
 class One(Frame):
     def __init__(self, parent, controller):
@@ -110,18 +110,7 @@ class Six(Frame):
         button.grid(row=1, column=1, padx=10, pady=10)
 
 app = ShelfApp()
+app.title("The Shelfinator")
 app.mainloop()
 # =======
-
-# def ListCreator(listLen):
-# 	newList = []
-# 	for i in range(1, listLen + 1):
-# 		newList.append(i)
-# 	return(newList)
-
-# listLen = 17
-
-# print(ListCreator(listLen))
-
-# print("hello world, bleh")
 
