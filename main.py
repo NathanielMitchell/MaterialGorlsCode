@@ -37,19 +37,25 @@ class ItemList():
         self.items = []
 
     def __str__(self):
-        s = str(self.items)
+        s = ""
+        for item in self.items:
+            s += item + "\n"
         return s
 
-    def addItem(self, entry, label, shelf):
+    def addItem(self, entry, label):
         item = entry.get()
         self.items.append(item)
-        label.config(text=f"Items on Shelf {shelf}: {self.items}")
+        label.delete(0, END)
+        for i in range(len(self.items)):
+            label.insert(i + 1, self.items[i])
         entry.delete(0, END)
     
-    def removeItem(self, entry, label, shelf):
+    def removeItem(self, entry, label):
         item = entry.get()
         self.items.remove(item)
-        label.config(text=f"Items on Shelf {shelf}: {self.items}")
+        label.delete(0, END)
+        for i in range(len(self.items)):
+            label.insert(i + 1, self.items[i])
         entry.delete(0, END)
 
 try:
@@ -133,16 +139,21 @@ class One(Frame):
         home = Button(self, text="Home Page", command = lambda: controller.showFrame(Home))
         home.grid(row=1, column=1, padx=10, pady=10)
 
-        items = Label(self, text=f"Items on Shelf One: {shelf_one_items.items}")
-        items.grid(row=0, column=5, padx=10, pady=10)
+        items_label = Label(self, text=f"Items on Shelf One: ")
+        items_label.grid(row=0, column=5, padx=10, pady=10)
+
+        items = Listbox(self)
+        items.grid(row=1, column=5, padx=10, pady=10)
+        for i in range(len(shelf_one_items.items)):
+            items.insert(i + 1, shelf_one_items.items[i])
 
         field = Entry(self)
         field.grid(row=2, column=0, padx=10, pady=10)
 
-        add = Button(self, text="ADD", command = lambda: shelf_one_items.addItem(field, items, "One"))
+        add = Button(self, text="ADD", command = lambda: shelf_one_items.addItem(field, items))
         add.grid(row=3, column=0, padx=10, pady=10)
 
-        grab = Button(self, text="REMOVE", command = lambda: shelf_one_items.removeItem(field, items, "One"))
+        grab = Button(self, text="REMOVE", command = lambda: shelf_one_items.removeItem(field, items))
         grab.grid(row=3, column=2, padx=10, pady=10)
 
 class Two(Frame):
@@ -154,16 +165,21 @@ class Two(Frame):
         home = Button(self, text="Home Page", command = lambda: controller.showFrame(Home))
         home.grid(row=1, column=1, padx=10, pady=10)
 
-        items = Label(self, text=f"Items on Shelf Two: {shelf_two_items.items}")
-        items.grid(row=0, column=5, padx=10, pady=10)
+        items_label = Label(self, text=f"Items on Shelf Two: ")
+        items_label.grid(row=0, column=5, padx=10, pady=10)
+
+        items = Listbox(self)
+        items.grid(row=1, column=5, padx=10, pady=10)
+        for i in range(len(shelf_two_items.items)):
+            items.insert(i + 1, shelf_two_items.items[i])
 
         field = Entry(self)
         field.grid(row=2, column=0, padx=10, pady=10)
 
-        add = Button(self, text="ADD", command = lambda: shelf_two_items.addItem(field, items, "Two"))
+        add = Button(self, text="ADD", command = lambda: shelf_two_items.addItem(field, items))
         add.grid(row=3, column=0, padx=10, pady=10)
 
-        grab = Button(self, text="REMOVE", command = lambda: shelf_two_items.removeItem(field, items, "Two"))
+        grab = Button(self, text="REMOVE", command = lambda: shelf_two_items.removeItem(field, items))
         grab.grid(row=3, column=2, padx=10, pady=10)
 
 class Three(Frame):
@@ -175,16 +191,21 @@ class Three(Frame):
         home = Button(self, text="Home Page", command = lambda: controller.showFrame(Home))
         home.grid(row=1, column=1, padx=10, pady=10)
 
-        items = Label(self, text=f"Items on Shelf Three: {shelf_three_items.items}")
-        items.grid(row=0, column=5, padx=10, pady=10)
+        items_label = Label(self, text=f"Items on Shelf Three: ")
+        items_label.grid(row=0, column=5, padx=10, pady=10)
+
+        items = Listbox(self)
+        items.grid(row=1, column=5, padx=10, pady=10)
+        for i in range(len(shelf_three_items.items)):
+            items.insert(i + 1, shelf_three_items.items[i])
 
         field = Entry(self)
         field.grid(row=2, column=0, padx=10, pady=10)
 
-        add = Button(self, text="ADD", command = lambda: shelf_three_items.addItem(field, items, "Three"))
+        add = Button(self, text="ADD", command = lambda: shelf_three_items.addItem(field, items))
         add.grid(row=3, column=0, padx=10, pady=10)
 
-        grab = Button(self, text="REMOVE", command = lambda: shelf_three_items.removeItem(field, items, "Three"))
+        grab = Button(self, text="REMOVE", command = lambda: shelf_three_items.removeItem(field, items))
         grab.grid(row=3, column=2, padx=10, pady=10)
 
 class Four(Frame):
@@ -196,16 +217,21 @@ class Four(Frame):
         home = Button(self, text="Home Page", command = lambda: controller.showFrame(Home))
         home.grid(row=1, column=1, padx=10, pady=10)
 
-        items = Label(self, text=f"Items on Shelf Four: {shelf_four_items.items}")
-        items.grid(row=0, column=5, padx=10, pady=10)
+        items_label = Label(self, text=f"Items on Shelf Four: ")
+        items_label.grid(row=0, column=5, padx=10, pady=10)
+
+        items = Listbox(self)
+        items.grid(row=1, column=5, padx=10, pady=10)
+        for i in range(len(shelf_four_items.items)):
+            items.insert(i + 1, shelf_four_items.items[i])
 
         field = Entry(self)
         field.grid(row=2, column=0, padx=10, pady=10)
 
-        add = Button(self, text="ADD", command = lambda: shelf_four_items.addItem(field, items, "Four"))
+        add = Button(self, text="ADD", command = lambda: shelf_four_items.addItem(field, items))
         add.grid(row=3, column=0, padx=10, pady=10)
 
-        grab = Button(self, text="REMOVE", command = lambda: shelf_four_items.removeItem(field, items, "Four"))
+        grab = Button(self, text="REMOVE", command = lambda: shelf_four_items.removeItem(field, items))
         grab.grid(row=3, column=2, padx=10, pady=10)
 
 class Five(Frame):
@@ -217,16 +243,21 @@ class Five(Frame):
         home = Button(self, text="Home Page", command = lambda: controller.showFrame(Home))
         home.grid(row=1, column=1, padx=10, pady=10)
 
-        items = Label(self, text=f"Items on Shelf Five: {shelf_five_items.items}")
-        items.grid(row=0, column=5, padx=10, pady=10)
+        items_label = Label(self, text=f"Items on Shelf Five: ")
+        items_label.grid(row=0, column=5, padx=10, pady=10)
+
+        items = Listbox(self)
+        items.grid(row=1, column=5, padx=10, pady=10)
+        for i in range(len(shelf_five_items.items)):
+            items.insert(i + 1, shelf_five_items.items[i])
 
         field = Entry(self)
         field.grid(row=2, column=0, padx=10, pady=10)
 
-        add = Button(self, text="ADD", command = lambda: shelf_five_items.addItem(field, items, "Five"))
+        add = Button(self, text="ADD", command = lambda: shelf_five_items.addItem(field, items))
         add.grid(row=3, column=0, padx=10, pady=10)
 
-        grab = Button(self, text="REMOVE", command = lambda: shelf_five_items.removeItem(field, items, "Five"))
+        grab = Button(self, text="REMOVE", command = lambda: shelf_five_items.removeItem(field, items))
         grab.grid(row=3, column=2, padx=10, pady=10)
 
 
@@ -239,16 +270,21 @@ class Six(Frame):
         home = Button(self, text="Home Page", command = lambda: controller.showFrame(Home))
         home.grid(row=1, column=1, padx=10, pady=10)
 
-        items = Label(self, text=f"Items on Shelf Six: {shelf_six_items.items}")
-        items.grid(row=0, column=5, padx=10, pady=10)
+        items_label = Label(self, text=f"Items on Shelf Six: ")
+        items_label.grid(row=0, column=5, padx=10, pady=10)
+
+        items = Listbox(self)
+        items.grid(row=1, column=5, padx=10, pady=10)
+        for i in range(len(shelf_six_items.items)):
+            items.insert(i + 1, shelf_six_items.items[i])
 
         field = Entry(self)
         field.grid(row=2, column=0, padx=10, pady=10)
 
-        add = Button(self, text="ADD", command = lambda: shelf_six_items.addItem(field, items, "Six"))
+        add = Button(self, text="ADD", command = lambda: shelf_six_items.addItem(field, items))
         add.grid(row=3, column=0, padx=10, pady=10)
 
-        grab = Button(self, text="REMOVE", command = lambda: shelf_six_items.removeItem(field, items, "Six"))
+        grab = Button(self, text="REMOVE", command = lambda: shelf_six_items.removeItem(field, items))
         grab.grid(row=3, column=2, padx=10, pady=10)
 
 
