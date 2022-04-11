@@ -83,7 +83,7 @@ class Home(Frame):
         button6 = Button(self, text="Shelf 6", command = lambda: controller.showFrame(Six))
         button6.grid(row=3, column=2, padx=10, pady=10)
 
-class One(Frame, ItemList):
+class One(Frame):
     def __init__(self, parent, controller):
         Frame.__init__(self, parent)
         
