@@ -108,26 +108,37 @@ class Home(Frame):
         field = Entry(self)
         field.grid(row=3, column=0, padx=10, pady=10)
 
-        search = Button(self, text="search shelves", command = lambda: self.searchItems(field, controller))
+        not_found = Label(self, text="")
+        not_found.grid(row=3, column=2, padx=10, pady=10)
+
+        search = Button(self, text="search shelves", command = lambda: self.searchItems(field, controller, not_found))
         search.grid(row=4, column=0, padx=10, pady=10)
-    
-    def searchItems(self, entry, controller):
+
+    def searchItems(self, entry, controller, label):
+        label.config(text="")
         word = entry.get()
         if (word == "quit"):
             app.destroy()
         elif (word in shelf_one_items.items):
             controller.showFrame(One)
+            entry.delete(0, END)
         elif (word in shelf_two_items.items):
             controller.showFrame(Two)
+            entry.delete(0, END)
         elif (word in shelf_three_items.items):
             controller.showFrame(Three)
+            entry.delete(0, END)
         elif (word in shelf_four_items.items):
             controller.showFrame(Four)
+            entry.delete(0, END)
         elif (word in shelf_five_items.items):
             controller.showFrame(Five)
+            entry.delete(0, END)
         elif (word in shelf_six_items.items):
             controller.showFrame(Six)
-        entry.delete(0, END)
+            entry.delete(0, END)
+        else:
+            label.config(text="Item not found", fg="red")
 
 class One(Frame):
     def __init__(self, parent, controller):
@@ -156,6 +167,11 @@ class One(Frame):
         grab = Button(self, text="REMOVE", command = lambda: shelf_one_items.removeItem(field, items))
         grab.grid(row=3, column=2, padx=10, pady=10)
 
+        scroll = Scrollbar(self)
+        scroll.grid(row=1, column=6)
+        items.config(yscrollcommand=scroll.set)
+        scroll.config(command=items.yview)
+
 class Two(Frame):
     def __init__(self, parent, controller):
         Frame.__init__(self, parent)
@@ -181,6 +197,11 @@ class Two(Frame):
 
         grab = Button(self, text="REMOVE", command = lambda: shelf_two_items.removeItem(field, items))
         grab.grid(row=3, column=2, padx=10, pady=10)
+
+        scroll = Scrollbar(self)
+        scroll.grid(row=1, column=6)
+        items.config(yscrollcommand=scroll.set)
+        scroll.config(command=items.yview)
 
 class Three(Frame):
     def __init__(self, parent, controller):
@@ -208,6 +229,11 @@ class Three(Frame):
         grab = Button(self, text="REMOVE", command = lambda: shelf_three_items.removeItem(field, items))
         grab.grid(row=3, column=2, padx=10, pady=10)
 
+        scroll = Scrollbar(self)
+        scroll.grid(row=1, column=6)
+        items.config(yscrollcommand=scroll.set)
+        scroll.config(command=items.yview)
+
 class Four(Frame):
     def __init__(self, parent, controller):
         Frame.__init__(self, parent)
@@ -233,6 +259,11 @@ class Four(Frame):
 
         grab = Button(self, text="REMOVE", command = lambda: shelf_four_items.removeItem(field, items))
         grab.grid(row=3, column=2, padx=10, pady=10)
+
+        scroll = Scrollbar(self)
+        scroll.grid(row=1, column=6)
+        items.config(yscrollcommand=scroll.set)
+        scroll.config(command=items.yview)
 
 class Five(Frame):
     def __init__(self, parent, controller):
@@ -260,6 +291,11 @@ class Five(Frame):
         grab = Button(self, text="REMOVE", command = lambda: shelf_five_items.removeItem(field, items))
         grab.grid(row=3, column=2, padx=10, pady=10)
 
+        scroll = Scrollbar(self)
+        scroll.grid(row=1, column=6)
+        items.config(yscrollcommand=scroll.set)
+        scroll.config(command=items.yview)
+
 
 class Six(Frame):
     def __init__(self, parent, controller):
@@ -286,6 +322,11 @@ class Six(Frame):
 
         grab = Button(self, text="REMOVE", command = lambda: shelf_six_items.removeItem(field, items))
         grab.grid(row=3, column=2, padx=10, pady=10)
+
+        scroll = Scrollbar(self)
+        scroll.grid(row=1, column=6)
+        items.config(yscrollcommand=scroll.set)
+        scroll.config(command=items.yview)
 
 
 app = ShelfApp()
