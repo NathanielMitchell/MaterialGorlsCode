@@ -42,22 +42,36 @@ class ItemList():
             s += item + "\n"
         return s
 
+    # add an item to the list of items
     def addItem(self, entry, label):
+        # pull the text from the entry field
         item = entry.get()
+        # append the text from the entry field to the list of items in the shelf object
         self.items.append(item)
+        # delete everything out of the list box to reset it
         label.delete(0, END)
+        # put everything back in the list box
         for i in range(len(self.items)):
             label.insert(i + 1, self.items[i])
+        # delete the text from the entry field to reset it
         entry.delete(0, END)
     
+    # remove an item from the list on the shelf object
     def removeItem(self, entry, label):
+        # pull the text from the entry field
         item = entry.get()
+        # remove the text from the list of items
         self.items.remove(item)
+        # clear everything out the list box
         label.delete(0, END)
+        # reset the list box
         for i in range(len(self.items)):
             label.insert(i + 1, self.items[i])
+        # reset the entry box
         entry.delete(0, END)
 
+# if the pickles from previous sessions exist, 
+# open them and store them as the shelf objects
 try:
     with open("pickled_shelf_one.pickle", "rb") as f:
         shelf_one_items = pickle.load(f)
@@ -72,6 +86,8 @@ try:
     with open("pickled_shelf_six.pickle", "rb") as f:
         shelf_six_items = pickle.load(f)
 
+# if the pickles from previous sessions don't exist, 
+# create new empty shelf objects 
 except FileNotFoundError:
     shelf_one_items = ItemList()
     shelf_two_items = ItemList()
@@ -83,14 +99,17 @@ except FileNotFoundError:
 class Home(Frame):
     def __init__(self, parent, controller):
         Frame.__init__(self, parent)
+        # set fonts
         title_font = ("Cooper Black", 30)
         button_font = ("Century Gothic", 16, "bold")
         listbox_font = ("Century Gothic", 14)
 
+        # create a title
         label = Label(self, text ="Home Page")
         label.grid(row=0, column=1, padx=10, pady=10)
         label.config(font=title_font)
 
+        # create buttons to navigate to each shelf
         button1 = Button(self, text="Shelf 1", background="pink", command = lambda: controller.showFrame(One))
         button1.grid(row=1, column=0, padx=10, pady=10)
         button1.config(font=button_font)
@@ -115,23 +134,33 @@ class Home(Frame):
         button6.grid(row=2, column=2, padx=10, pady=10)
         button6.config(font=button_font)
 
+        # create a searchable field
         field = Entry(self)
         field.grid(row=3, column=1, padx=10, pady=10)
         field.config(font=listbox_font)
 
+        # create a label in case the text in the searchable field isn't found
+        # set it to empty until the search button is used
         not_found = Label(self, text="")
         not_found.grid(row=3, columnspan=3, column=2, padx=10, pady=10)
         not_found.config(font=listbox_font)
 
+        # set a button to search
         search = Button(self, text="search shelves", command = lambda: self.searchItems(field, controller, not_found))
         search.grid(row=4, column=1, padx=10, pady=10)
         search.config(font=button_font)
 
+    # search for items in each list
+    # the first list that the item is found in will be the list you're taken to
     def searchItems(self, entry, controller, label):
+        # reset the item not found label to be empty
         label.config(text="")
+        # grab the entry from the search field
         word = entry.get()
+        # exit if the word is quit
         if (word == "quit"):
             app.destroy()
+        # check the shelf for each item and clear the field
         elif (word in shelf_one_items.items):
             controller.showFrame(One)
             entry.delete(0, END)
@@ -150,6 +179,7 @@ class Home(Frame):
         elif (word in shelf_six_items.items):
             controller.showFrame(Six)
             entry.delete(0, END)
+        # set the label text to item not found
         else:
             label.config(text="Item not found", fg="red")
 
