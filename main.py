@@ -83,36 +83,49 @@ except FileNotFoundError:
 class Home(Frame):
     def __init__(self, parent, controller):
         Frame.__init__(self, parent)
+        title_font = ("Cooper Black", 30)
+        button_font = ("Century Gothic", 16, "bold")
+        listbox_font = ("Century Gothic", 14)
 
         label = Label(self, text ="Home Page")
-        label.grid(row=0, column=2, padx=10, pady=10)
+        label.grid(row=0, column=1, padx=10, pady=10)
+        label.config(font=title_font)
 
         button1 = Button(self, text="Shelf 1", background="pink", command = lambda: controller.showFrame(One))
-        button1.grid(row=1, column=1, padx=10, pady=10)
+        button1.grid(row=1, column=0, padx=10, pady=10)
+        button1.config(font=button_font)
 
         button2 = Button(self, text="Shelf 2", background="pink", command = lambda: controller.showFrame(Two))
-        button2.grid(row=2, column=1, padx=10, pady=10)
+        button2.grid(row=2, column=0, padx=10, pady=10)
+        button2.config(font=button_font)
 
         button3 = Button(self, text="Shelf 3", background="pink", command = lambda: controller.showFrame(Three))
-        button3.grid(row=1, column=2, padx=10, pady=10)
+        button3.grid(row=1, column=1, padx=10, pady=10)
+        button3.config(font=button_font)
 
         button4 = Button(self, text="Shelf 4", background="pink", command = lambda: controller.showFrame(Four))
-        button4.grid(row=2, column=2, padx=10, pady=10)
+        button4.grid(row=2, column=1, padx=10, pady=10)
+        button4.config(font=button_font)
 
         button5 = Button(self, text="Shelf 5", background="pink", command = lambda: controller.showFrame(Five))
-        button5.grid(row=1, column=3, padx=10, pady=10)
+        button5.grid(row=1, column=2, padx=10, pady=10)
+        button5.config(font=button_font)
 
         button6 = Button(self, text="Shelf 6", background="pink", command = lambda: controller.showFrame(Six))
-        button6.grid(row=2, column=3, padx=10, pady=10)
+        button6.grid(row=2, column=2, padx=10, pady=10)
+        button6.config(font=button_font)
 
         field = Entry(self)
-        field.grid(row=3, column=0, padx=10, pady=10)
+        field.grid(row=3, column=1, padx=10, pady=10)
+        field.config(font=listbox_font)
 
         not_found = Label(self, text="")
-        not_found.grid(row=3, column=2, padx=10, pady=10)
+        not_found.grid(row=3, columnspan=3, column=2, padx=10, pady=10)
+        not_found.config(font=listbox_font)
 
         search = Button(self, text="search shelves", command = lambda: self.searchItems(field, controller, not_found))
-        search.grid(row=4, column=0, padx=10, pady=10)
+        search.grid(row=4, column=1, padx=10, pady=10)
+        search.config(font=button_font)
 
     def searchItems(self, entry, controller, label):
         label.config(text="")
@@ -142,30 +155,40 @@ class Home(Frame):
 
 class One(Frame):
     def __init__(self, parent, controller):
+        title_font = ("Cooper Black", 30)
+        button_font = ("Century Gothic", 16, "bold")
+        listbox_font = ("Century Gothic", 14)
         Frame.__init__(self, parent)
         
         title = Label(self, text="Shelf One")
-        title.grid(row=0, column=4, padx=10, pady=10)
+        title.grid(row=0, column=0, padx=10, pady=10)
+        title.config(font=title_font)
 
         home = Button(self, text="Home Page", command = lambda: controller.showFrame(Home))
-        home.grid(row=1, column=1, padx=10, pady=10)
+        home.grid(row=1, column=0, padx=10, pady=10)
+        home.config(font=button_font)
 
         items_label = Label(self, text=f"Items on Shelf One: ")
         items_label.grid(row=0, column=5, padx=10, pady=10)
+        items_label.config(font=button_font)
 
         items = Listbox(self)
-        items.grid(row=1, column=5, padx=10, pady=10)
+        items.grid(row=1, rowspan=4, column=5, columnspan=2, padx=10, pady=10)
         for i in range(len(shelf_one_items.items)):
             items.insert(i + 1, shelf_one_items.items[i])
+        items.config(font=listbox_font)
 
         field = Entry(self)
         field.grid(row=2, column=0, padx=10, pady=10)
+        field.config(font=listbox_font)
 
         add = Button(self, text="ADD", command = lambda: shelf_one_items.addItem(field, items))
-        add.grid(row=3, column=0, padx=10, pady=10)
+        add.grid(row=2, column=1, padx=10, pady=10)
+        add.config(font=button_font)
 
         grab = Button(self, text="REMOVE", command = lambda: shelf_one_items.removeItem(field, items))
-        grab.grid(row=3, column=2, padx=10, pady=10)
+        grab.grid(row=3, column=1, padx=10, pady=10)
+        grab.config(font=button_font)
 
         scroll = Scrollbar(self)
         scroll.grid(row=1, column=6)
@@ -175,28 +198,39 @@ class One(Frame):
 class Two(Frame):
     def __init__(self, parent, controller):
         Frame.__init__(self, parent)
+        title_font = ("Cooper Black", 30)
+        button_font = ("Century Gothic", 16, "bold")
+        listbox_font = ("Century Gothic", 14)
+
         title = Label(self, text="Shelf Two")
-        title.grid(row=0, column=4, padx=10, pady=10)
+        title.grid(row=0, column=0, padx=10, pady=10)
+        title.config(font=title_font)
 
         home = Button(self, text="Home Page", command = lambda: controller.showFrame(Home))
-        home.grid(row=1, column=1, padx=10, pady=10)
+        home.grid(row=1, column=0, padx=10, pady=10)
+        home.config(font=button_font)
 
         items_label = Label(self, text=f"Items on Shelf Two: ")
         items_label.grid(row=0, column=5, padx=10, pady=10)
+        items_label.config(font=button_font)
 
         items = Listbox(self)
-        items.grid(row=1, column=5, padx=10, pady=10)
+        items.grid(row=1, column=5, rowspan=4, columnspan=2, padx=10, pady=10)
         for i in range(len(shelf_two_items.items)):
             items.insert(i + 1, shelf_two_items.items[i])
+        items.config(font=listbox_font)
 
         field = Entry(self)
         field.grid(row=2, column=0, padx=10, pady=10)
+        field.config(font=listbox_font)
 
         add = Button(self, text="ADD", command = lambda: shelf_two_items.addItem(field, items))
-        add.grid(row=3, column=0, padx=10, pady=10)
+        add.grid(row=2, column=1, padx=10, pady=10)
+        add.config(font=button_font)
 
         grab = Button(self, text="REMOVE", command = lambda: shelf_two_items.removeItem(field, items))
-        grab.grid(row=3, column=2, padx=10, pady=10)
+        grab.grid(row=3, column=1, padx=10, pady=10)
+        grab.config(font=button_font)
 
         scroll = Scrollbar(self)
         scroll.grid(row=1, column=6)
@@ -206,28 +240,39 @@ class Two(Frame):
 class Three(Frame):
     def __init__(self, parent, controller):
         Frame.__init__(self, parent)
+        title_font = ("Cooper Black", 30)
+        button_font = ("Century Gothic", 16, "bold")
+        listbox_font = ("Century Gothic", 14)
+
         title = Label(self, text="Shelf Three")
-        title.grid(row=0, column=4, padx=10, pady=10)
+        title.grid(row=0, column=0, padx=10, pady=10)
+        title.config(font=title_font)
 
         home = Button(self, text="Home Page", command = lambda: controller.showFrame(Home))
-        home.grid(row=1, column=1, padx=10, pady=10)
+        home.grid(row=1, column=0, padx=10, pady=10)
+        home.config(font=button_font)
 
         items_label = Label(self, text=f"Items on Shelf Three: ")
         items_label.grid(row=0, column=5, padx=10, pady=10)
+        items_label.config(font=button_font)
 
         items = Listbox(self)
-        items.grid(row=1, column=5, padx=10, pady=10)
+        items.grid(row=1, column=5, rowspan=4, columnspan=2, padx=10, pady=10)
         for i in range(len(shelf_three_items.items)):
             items.insert(i + 1, shelf_three_items.items[i])
+        items.config(font=listbox_font)
 
         field = Entry(self)
         field.grid(row=2, column=0, padx=10, pady=10)
+        field.config(font=listbox_font)
 
         add = Button(self, text="ADD", command = lambda: shelf_three_items.addItem(field, items))
-        add.grid(row=3, column=0, padx=10, pady=10)
+        add.grid(row=2, column=1, padx=10, pady=10)
+        add.config(font=button_font)
 
         grab = Button(self, text="REMOVE", command = lambda: shelf_three_items.removeItem(field, items))
-        grab.grid(row=3, column=2, padx=10, pady=10)
+        grab.grid(row=3, column=1, padx=10, pady=10)
+        grab.config(font=button_font)
 
         scroll = Scrollbar(self)
         scroll.grid(row=1, column=6)
@@ -237,28 +282,39 @@ class Three(Frame):
 class Four(Frame):
     def __init__(self, parent, controller):
         Frame.__init__(self, parent)
+        title_font = ("Cooper Black", 30)
+        button_font = ("Century Gothic", 16, "bold")
+        listbox_font = ("Century Gothic", 14)
+
         title = Label(self, text="Shelf Four")
-        title.grid(row=0, column=4, padx=10, pady=10)
+        title.grid(row=0, column=0, padx=10, pady=10)
+        title.config(font=title_font)
 
         home = Button(self, text="Home Page", command = lambda: controller.showFrame(Home))
-        home.grid(row=1, column=1, padx=10, pady=10)
+        home.grid(row=1, column=0, padx=10, pady=10)
+        home.config(font=button_font)
 
         items_label = Label(self, text=f"Items on Shelf Four: ")
         items_label.grid(row=0, column=5, padx=10, pady=10)
+        items_label.config(font=button_font)
 
         items = Listbox(self)
-        items.grid(row=1, column=5, padx=10, pady=10)
+        items.grid(row=1, column=5, rowspan=4, columnspan=2, padx=10, pady=10)
         for i in range(len(shelf_four_items.items)):
             items.insert(i + 1, shelf_four_items.items[i])
+        items.config(font=listbox_font)
 
         field = Entry(self)
         field.grid(row=2, column=0, padx=10, pady=10)
+        field.config(font=listbox_font)
 
         add = Button(self, text="ADD", command = lambda: shelf_four_items.addItem(field, items))
-        add.grid(row=3, column=0, padx=10, pady=10)
+        add.grid(row=2, column=1, padx=10, pady=10)
+        add.config(font=button_font)
 
         grab = Button(self, text="REMOVE", command = lambda: shelf_four_items.removeItem(field, items))
-        grab.grid(row=3, column=2, padx=10, pady=10)
+        grab.grid(row=3, column=1, padx=10, pady=10)
+        grab.config(font=button_font)
 
         scroll = Scrollbar(self)
         scroll.grid(row=1, column=6)
@@ -268,28 +324,39 @@ class Four(Frame):
 class Five(Frame):
     def __init__(self, parent, controller):
         Frame.__init__(self, parent)
+        title_font = ("Cooper Black", 30)
+        button_font = ("Century Gothic", 16, "bold")
+        listbox_font = ("Century Gothic", 14)
+
         title = Label(self, text="Shelf Five")
-        title.grid(row=0, column=4, padx=10, pady=10)
+        title.grid(row=0, column=0, padx=10, pady=10)
+        title.config(font=title_font)
 
         home = Button(self, text="Home Page", command = lambda: controller.showFrame(Home))
-        home.grid(row=1, column=1, padx=10, pady=10)
+        home.grid(row=1, column=0, padx=10, pady=10)
+        home.config(font=button_font)
 
         items_label = Label(self, text=f"Items on Shelf Five: ")
         items_label.grid(row=0, column=5, padx=10, pady=10)
+        items_label.config(font=button_font)
 
         items = Listbox(self)
-        items.grid(row=1, column=5, padx=10, pady=10)
+        items.grid(row=1, column=5, rowspan=4, columnspan=2, padx=10, pady=10)
         for i in range(len(shelf_five_items.items)):
             items.insert(i + 1, shelf_five_items.items[i])
+        items.config(font=listbox_font)
 
         field = Entry(self)
         field.grid(row=2, column=0, padx=10, pady=10)
+        field.config(font=listbox_font)
 
         add = Button(self, text="ADD", command = lambda: shelf_five_items.addItem(field, items))
-        add.grid(row=3, column=0, padx=10, pady=10)
+        add.grid(row=2, column=1, padx=10, pady=10)
+        add.config(font=button_font)
 
         grab = Button(self, text="REMOVE", command = lambda: shelf_five_items.removeItem(field, items))
-        grab.grid(row=3, column=2, padx=10, pady=10)
+        grab.grid(row=3, column=1, padx=10, pady=10)
+        grab.config(font=button_font)
 
         scroll = Scrollbar(self)
         scroll.grid(row=1, column=6)
@@ -300,28 +367,39 @@ class Five(Frame):
 class Six(Frame):
     def __init__(self, parent, controller):
         Frame.__init__(self, parent)
+        title_font = ("Cooper Black", 30)
+        button_font = ("Century Gothic", 16, "bold")
+        listbox_font = ("Century Gothic", 14)
+
         title = Label(self, text="Shelf Six")
-        title.grid(row=0, column=4, padx=10, pady=10)
+        title.grid(row=0, column=0, padx=10, pady=10)
+        title.config(font=title_font)
 
         home = Button(self, text="Home Page", command = lambda: controller.showFrame(Home))
-        home.grid(row=1, column=1, padx=10, pady=10)
+        home.grid(row=1, column=0, padx=10, pady=10)
+        home.config(font=button_font)
 
         items_label = Label(self, text=f"Items on Shelf Six: ")
-        items_label.grid(row=0, column=5, padx=10, pady=10)
+        items_label.grid(row=0, column=5, columnspan=2, padx=10, pady=10)
+        items_label.config(font=button_font)
 
         items = Listbox(self)
-        items.grid(row=1, column=5, padx=10, pady=10)
+        items.grid(row=1, column=5, rowspan=4, columnspan=2, padx=10, pady=10)
         for i in range(len(shelf_six_items.items)):
             items.insert(i + 1, shelf_six_items.items[i])
+        items.config(font=listbox_font)
 
         field = Entry(self)
         field.grid(row=2, column=0, padx=10, pady=10)
+        field.config(font=listbox_font)
 
         add = Button(self, text="ADD", command = lambda: shelf_six_items.addItem(field, items))
-        add.grid(row=3, column=0, padx=10, pady=10)
+        add.grid(row=2, column=1, padx=10, pady=10)
+        add.config(font=button_font)
 
         grab = Button(self, text="REMOVE", command = lambda: shelf_six_items.removeItem(field, items))
-        grab.grid(row=3, column=2, padx=10, pady=10)
+        grab.grid(row=3, column=1, padx=10, pady=10)
+        grab.config(font=button_font)
 
         scroll = Scrollbar(self)
         scroll.grid(row=1, column=6)
