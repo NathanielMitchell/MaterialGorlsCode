@@ -8,6 +8,8 @@ try:
 except FileNotFoundError:
     barcodes = { }
 
+print (barcodes)
+
 class ShelfApp(Tk):
     def __init__(self, *args, **kwargs):
         # inherit from parent class
@@ -269,7 +271,7 @@ class Two(Frame):
         field = Entry(self)
         field.grid(row=2, column=0, padx=10, pady=10)
         field.config(font=listbox_font)
-        field.bind("<Return>", lambda event: shelf_one_items.addItem(event, field, items))
+        field.bind("<Return>", lambda event: shelf_two_items.addItem(event, field, items))
 
         # add = Button(self, text="ADD", command = lambda: shelf_two_items.addItem(field, items))
         # add.grid(row=2, column=1, padx=10, pady=10)
@@ -312,7 +314,7 @@ class Three(Frame):
         field = Entry(self)
         field.grid(row=2, column=0, padx=10, pady=10)
         field.config(font=listbox_font)
-        field.bind("<Return>", lambda event: shelf_one_items.addItem(event, field, items))
+        field.bind("<Return>", lambda event: shelf_three_items.addItem(event, field, items))
 
         # add = Button(self, text="ADD", command = lambda: shelf_three_items.addItem(field, items))
         # add.grid(row=2, column=1, padx=10, pady=10)
@@ -355,13 +357,13 @@ class Four(Frame):
         field = Entry(self)
         field.grid(row=2, column=0, padx=10, pady=10)
         field.config(font=listbox_font)
-        field.bind("<Return>", lambda event: shelf_one_items.addItem(event, field, items))
+        field.bind("<Return>", lambda event: shelf_four_items.addItem(event, field, items))
 
         # add = Button(self, text="ADD", command = lambda: shelf_four_items.addItem(field, items))
         # add.grid(row=2, column=1, padx=10, pady=10)
         # add.config(font=button_font)
 
-        grab = Button(self, text="REMOVE", command = lambda: shelf_four_items.removeItem(items))
+        grab = Button(self, text="REMOVE", command = lambda: shelf_five_items.removeItem(items))
         grab.grid(row=3, column=1, padx=10, pady=10)
         grab.config(font=button_font)
 
@@ -398,7 +400,7 @@ class Five(Frame):
         field = Entry(self)
         field.grid(row=2, column=0, padx=10, pady=10)
         field.config(font=listbox_font)
-        field.bind("<Return>", lambda event: shelf_one_items.addItem(event, field, items))
+        field.bind("<Return>", lambda event: shelf_five_items.addItem(event, field, items))
 
         # add = Button(self, text="ADD", command = lambda: shelf_five_items.addItem(field, items))
         # add.grid(row=2, column=1, padx=10, pady=10)
@@ -442,7 +444,7 @@ class Six(Frame):
         field = Entry(self)
         field.grid(row=2, column=0, padx=10, pady=10)
         field.config(font=listbox_font)
-        field.bind("<Return>", lambda event: shelf_one_items.addItem(event, field, items))
+        field.bind("<Return>", lambda event: shelf_six_items.addItem(event, field, items))
 
         # add = Button(self, text="ADD", command = lambda: shelf_six_items.addItem(field, items))
         # add.grid(row=2, column=1, padx=10, pady=10)
