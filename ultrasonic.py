@@ -84,8 +84,8 @@ SPEED_OF_SOUND = 343
 GPIO.setmode(GPIO.BCM)
 
 # pins
-TRIG = 18
-ECHO = 27
+TRIG = 12
+ECHO = 20
 
 # pin setups
 GPIO.setup(TRIG, GPIO.OUT)
@@ -109,16 +109,16 @@ distanceList = []
 
 
 while (True):
-	print("-Measuring...")
 	distance = sensor.getDistance() * correctionFactor
 	sleep(0.2)
 
 	distance = round(distance, 4)
-	difference = distance - sensor.previousDistance
+	difference = distance - sensor.previousMeasurement
 	if (difference > 2):
 		print("there is a new shelf")
 
 	print(distance)
+	sensor.previousMeasurement = distance
 
 """So, i pulled a lot of this straight from the old pi assignment, but i made it more object oriented.
 The idea in my head is that the ultrasonic sensor is able to do everything that the ir sensor could do also.
