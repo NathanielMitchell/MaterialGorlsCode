@@ -2,14 +2,14 @@ from tkinter import *
 from turtle import home
 import pickle
 
+# grab the barcodes from the previous section unless there are none
 try:
     with open("barcodes.pickle", "rb") as f:
         barcodes = pickle.load(f)
 except FileNotFoundError:
     barcodes = { }
 
-print (barcodes)
-
+# controls the framework and allows for switching between frames
 class ShelfApp(Tk):
     def __init__(self, *args, **kwargs):
         # inherit from parent class
@@ -40,10 +40,13 @@ class ShelfApp(Tk):
         frame = self.frames[cont]
         frame.tkraise()
 
+# a class for creating, adding to, and removing from, the lists of items for each shelf
 class ItemList():
+    # initializes an empty shelf
     def __init__(self):
         self.items = []
 
+    # method for printing the shelves
     def __str__(self):
         s = ""
         for item in self.items:
@@ -54,8 +57,13 @@ class ItemList():
     def addItem(self, event, entry, label):
         # pull the text from the entry field
         barcode = entry.get()
-        item = barcodes[barcode]
-        # append the text from the entry field to the list of items in the shelf object
+        # check to see if the item is stored in the barcodes list.
+        # If not, it will simply add the item typed in to the shelf
+        if (barcode in barcodes):
+            item = barcodes[barcode]
+        else: 
+            item = entry.get()
+        # append the text from the entry field or the item stored with the barcode to the list of shelf items
         self.items.append(item)
         # delete everything out of the list box to reset it
         label.delete(0, END)
@@ -103,6 +111,7 @@ except FileNotFoundError:
     shelf_five_items = ItemList()
     shelf_six_items = ItemList()
 
+# class for the home page
 class Home(Frame):
     def __init__(self, parent, controller):
         Frame.__init__(self, parent)
@@ -148,7 +157,7 @@ class Home(Frame):
 
         # create a label in case the text in the searchable field isn't found
         # set it to empty until the search button is used
-        self.not_found = Label(self, text="")
+        self.not_found = Label(self, text="Search", fg="black")
         self.not_found.grid(row=4, columnspan=3, column=2, padx=10, pady=10)
         self.not_found.config(font=listbox_font)
 
@@ -158,11 +167,6 @@ class Home(Frame):
         self.field.config(font=listbox_font)
         self.field.bind("<Return>", self.searchItems)
 
-        # # set a button to search
-        # search = Button(self, text="search shelves", command = lambda: self.searchItems(field, controller, not_found))
-        # search.grid(row=5, column=1, padx=10, pady=10)
-        # search.config(font=button_font)
-
     # search for items in each list
     # the first list that the item is found in will be the list you're taken to
     def searchItems(self, event):
@@ -170,8 +174,37 @@ class Home(Frame):
         self.not_found.config(text="")
         # grab the entry from the search field
         barcode = self.field.get()
+        # check to see if the word is a barcode
         if (barcode in barcodes):
             word = barcodes[barcode]
+             # exit if the word is quit
+            if (word == "quit"):
+                app.destroy()
+            # check the shelf for each item and clear the field
+            elif (word in shelf_one_items.items):
+                self.controller.showFrame(One)
+                self.field.delete(0, END)
+            elif (word in shelf_two_items.items):
+                self.controller.showFrame(Two)
+                self.field.delete(0, END)
+            elif (word in shelf_three_items.items):
+                self.controller.showFrame(Three)
+                self.field.delete(0, END)
+            elif (word in shelf_four_items.items):
+                self.controller.showFrame(Four)
+                self.field.delete(0, END)
+            elif (word in shelf_five_items.items):
+                self.controller.showFrame(Five)
+                self.field.delete(0, END)
+            elif (word in shelf_six_items.items):
+                self.controller.showFrame(Six)
+                self.field.delete(0, END)
+            else:
+                self.not_found.config(text="Item not found", fg="red")
+                self.field.delete(0, END)
+        # if not, set the search phrase to the word input
+        else:
+            word = self.field.get()
             # exit if the word is quit
             if (word == "quit"):
                 app.destroy()
@@ -196,9 +229,7 @@ class Home(Frame):
                 self.field.delete(0, END)
             else:
                 self.not_found.config(text="Item not found", fg="red")
-        # set the label text to item not found
-        else:
-            self.not_found.config(text="Item not found", fg="red")
+                self.field.delete(0, END)
 
 class One(Frame):
     def __init__(self, parent, controller):
@@ -219,29 +250,29 @@ class One(Frame):
         items_label.grid(row=0, column=5, padx=10, pady=10)
         items_label.config(font=button_font)
 
-        items = Listbox(self)
-        items.grid(row=1, rowspan=4, column=5, columnspan=2, padx=10, pady=10)
+        self.items = Listbox(self)
+        self.items.grid(row=1, rowspan=4, column=5, columnspan=2, padx=10, pady=10)
         for i in range(len(shelf_one_items.items)):
-            items.insert(i + 1, shelf_one_items.items[i])
-        items.config(font=listbox_font)
+            self.items.insert(i + 1, shelf_one_items.items[i])
+        self.items.config(font=listbox_font)
 
         field = Entry(self)
         field.grid(row=2, column=0, padx=10, pady=10)
         field.config(font=listbox_font)
-        field.bind("<Return>", lambda event: shelf_one_items.addItem(event, field, items))
+        field.bind("<Return>", lambda event: shelf_one_items.addItem(event, field, self.items))
 
         # add = Button(self, text="ADD", command = lambda: shelf_one_items.addItem(field, items))
         # add.grid(row=2, column=1, padx=10, pady=10)
         # add.config(font=button_font)
 
-        grab = Button(self, text="REMOVE", command = lambda: shelf_one_items.removeItem(items))
+        grab = Button(self, text="REMOVE", command = lambda: shelf_one_items.removeItem(self.items))
         grab.grid(row=3, column=1, padx=10, pady=10)
         grab.config(font=button_font)
 
         scroll = Scrollbar(self)
         scroll.grid(row=1, column=6)
-        items.config(yscrollcommand=scroll.set)
-        scroll.config(command=items.yview)
+        self.items.config(yscrollcommand=scroll.set)
+        scroll.config(command=self.items.yview)
 
 class Two(Frame):
     def __init__(self, parent, controller):
@@ -262,29 +293,29 @@ class Two(Frame):
         items_label.grid(row=0, column=5, padx=10, pady=10)
         items_label.config(font=button_font)
 
-        items = Listbox(self)
-        items.grid(row=1, column=5, rowspan=4, columnspan=2, padx=10, pady=10)
+        self.items = Listbox(self)
+        self.items.grid(row=1, column=5, rowspan=4, columnspan=2, padx=10, pady=10)
         for i in range(len(shelf_two_items.items)):
-            items.insert(i + 1, shelf_two_items.items[i])
-        items.config(font=listbox_font)
+            self.items.insert(i + 1, shelf_two_items.items[i])
+        self.items.config(font=listbox_font)
 
         field = Entry(self)
         field.grid(row=2, column=0, padx=10, pady=10)
         field.config(font=listbox_font)
-        field.bind("<Return>", lambda event: shelf_two_items.addItem(event, field, items))
+        field.bind("<Return>", lambda event: shelf_two_items.addItem(event, field, self.items))
 
         # add = Button(self, text="ADD", command = lambda: shelf_two_items.addItem(field, items))
         # add.grid(row=2, column=1, padx=10, pady=10)
         # add.config(font=button_font)
 
-        grab = Button(self, text="REMOVE", command = lambda: shelf_two_items.removeItem(items))
+        grab = Button(self, text="REMOVE", command = lambda: shelf_two_items.removeItem(self.items))
         grab.grid(row=3, column=1, padx=10, pady=10)
         grab.config(font=button_font)
 
         scroll = Scrollbar(self)
         scroll.grid(row=1, column=6)
-        items.config(yscrollcommand=scroll.set)
-        scroll.config(command=items.yview)
+        self.items.config(yscrollcommand=scroll.set)
+        scroll.config(command=self.items.yview)
 
 class Three(Frame):
     def __init__(self, parent, controller):
@@ -305,29 +336,29 @@ class Three(Frame):
         items_label.grid(row=0, column=5, padx=10, pady=10)
         items_label.config(font=button_font)
 
-        items = Listbox(self)
-        items.grid(row=1, column=5, rowspan=4, columnspan=2, padx=10, pady=10)
+        self.items = Listbox(self)
+        self.items.grid(row=1, column=5, rowspan=4, columnspan=2, padx=10, pady=10)
         for i in range(len(shelf_three_items.items)):
-            items.insert(i + 1, shelf_three_items.items[i])
-        items.config(font=listbox_font)
+            self.items.insert(i + 1, shelf_three_items.items[i])
+        self.items.config(font=listbox_font)
 
         field = Entry(self)
         field.grid(row=2, column=0, padx=10, pady=10)
         field.config(font=listbox_font)
-        field.bind("<Return>", lambda event: shelf_three_items.addItem(event, field, items))
+        field.bind("<Return>", lambda event: shelf_three_items.addItem(event, field, self.items))
 
         # add = Button(self, text="ADD", command = lambda: shelf_three_items.addItem(field, items))
         # add.grid(row=2, column=1, padx=10, pady=10)
         # add.config(font=button_font)
 
-        grab = Button(self, text="REMOVE", command = lambda: shelf_three_items.removeItem(items))
+        grab = Button(self, text="REMOVE", command = lambda: shelf_three_items.removeItem(self.items))
         grab.grid(row=3, column=1, padx=10, pady=10)
         grab.config(font=button_font)
 
         scroll = Scrollbar(self)
         scroll.grid(row=1, column=6)
-        items.config(yscrollcommand=scroll.set)
-        scroll.config(command=items.yview)
+        self.items.config(yscrollcommand=scroll.set)
+        scroll.config(command=self.items.yview)
 
 class Four(Frame):
     def __init__(self, parent, controller):
@@ -348,29 +379,29 @@ class Four(Frame):
         items_label.grid(row=0, column=5, padx=10, pady=10)
         items_label.config(font=button_font)
 
-        items = Listbox(self)
-        items.grid(row=1, column=5, rowspan=4, columnspan=2, padx=10, pady=10)
+        self.items = Listbox(self)
+        self.items.grid(row=1, column=5, rowspan=4, columnspan=2, padx=10, pady=10)
         for i in range(len(shelf_four_items.items)):
-            items.insert(i + 1, shelf_four_items.items[i])
-        items.config(font=listbox_font)
+            self.items.insert(i + 1, shelf_four_items.items[i])
+        self.items.config(font=listbox_font)
 
         field = Entry(self)
         field.grid(row=2, column=0, padx=10, pady=10)
         field.config(font=listbox_font)
-        field.bind("<Return>", lambda event: shelf_four_items.addItem(event, field, items))
+        field.bind("<Return>", lambda event: shelf_four_items.addItem(event, field, self.items))
 
         # add = Button(self, text="ADD", command = lambda: shelf_four_items.addItem(field, items))
         # add.grid(row=2, column=1, padx=10, pady=10)
         # add.config(font=button_font)
 
-        grab = Button(self, text="REMOVE", command = lambda: shelf_five_items.removeItem(items))
+        grab = Button(self, text="REMOVE", command = lambda: shelf_four_items.removeItem(self.items))
         grab.grid(row=3, column=1, padx=10, pady=10)
         grab.config(font=button_font)
 
         scroll = Scrollbar(self)
         scroll.grid(row=1, column=6)
-        items.config(yscrollcommand=scroll.set)
-        scroll.config(command=items.yview)
+        self.items.config(yscrollcommand=scroll.set)
+        scroll.config(command=self.items.yview)
 
 class Five(Frame):
     def __init__(self, parent, controller):
@@ -391,29 +422,29 @@ class Five(Frame):
         items_label.grid(row=0, column=5, padx=10, pady=10)
         items_label.config(font=button_font)
 
-        items = Listbox(self)
-        items.grid(row=1, column=5, rowspan=4, columnspan=2, padx=10, pady=10)
+        self.items = Listbox(self)
+        self.items.grid(row=1, column=5, rowspan=4, columnspan=2, padx=10, pady=10)
         for i in range(len(shelf_five_items.items)):
-            items.insert(i + 1, shelf_five_items.items[i])
-        items.config(font=listbox_font)
+            self.items.insert(i + 1, shelf_five_items.items[i])
+        self.items.config(font=listbox_font)
 
         field = Entry(self)
         field.grid(row=2, column=0, padx=10, pady=10)
         field.config(font=listbox_font)
-        field.bind("<Return>", lambda event: shelf_five_items.addItem(event, field, items))
+        field.bind("<Return>", lambda event: shelf_five_items.addItem(event, field, self.items))
 
         # add = Button(self, text="ADD", command = lambda: shelf_five_items.addItem(field, items))
         # add.grid(row=2, column=1, padx=10, pady=10)
         # add.config(font=button_font)
 
-        grab = Button(self, text="REMOVE", command = lambda: shelf_five_items.removeItem(items))
+        grab = Button(self, text="REMOVE", command = lambda: shelf_five_items.removeItem(self.items))
         grab.grid(row=3, column=1, padx=10, pady=10)
         grab.config(font=button_font)
 
         scroll = Scrollbar(self)
         scroll.grid(row=1, column=6)
-        items.config(yscrollcommand=scroll.set)
-        scroll.config(command=items.yview)
+        self.items.config(yscrollcommand=scroll.set)
+        scroll.config(command=self.items.yview)
 
 
 class Six(Frame):
@@ -435,29 +466,29 @@ class Six(Frame):
         items_label.grid(row=0, column=5, columnspan=2, padx=10, pady=10)
         items_label.config(font=button_font)
 
-        items = Listbox(self)
-        items.grid(row=1, column=5, rowspan=4, columnspan=2, padx=10, pady=10)
+        self.items = Listbox(self)
+        self.items.grid(row=1, column=5, rowspan=4, columnspan=2, padx=10, pady=10)
         for i in range(len(shelf_six_items.items)):
-            items.insert(i + 1, shelf_six_items.items[i])
-        items.config(font=listbox_font)
+            self.items.insert(i + 1, shelf_six_items.items[i])
+        self.items.config(font=listbox_font)
 
         field = Entry(self)
         field.grid(row=2, column=0, padx=10, pady=10)
         field.config(font=listbox_font)
-        field.bind("<Return>", lambda event: shelf_six_items.addItem(event, field, items))
+        field.bind("<Return>", lambda event: shelf_six_items.addItem(event, field, self.items))
 
         # add = Button(self, text="ADD", command = lambda: shelf_six_items.addItem(field, items))
         # add.grid(row=2, column=1, padx=10, pady=10)
         # add.config(font=button_font)
 
-        grab = Button(self, text="REMOVE", command = lambda: shelf_six_items.removeItem(items))
+        grab = Button(self, text="REMOVE", command = lambda: shelf_six_items.removeItem(self.items))
         grab.grid(row=3, column=1, padx=10, pady=10)
         grab.config(font=button_font)
 
         scroll = Scrollbar(self)
         scroll.grid(row=1, column=6)
-        items.config(yscrollcommand=scroll.set)
-        scroll.config(command=items.yview)
+        self.items.config(yscrollcommand=scroll.set)
+        scroll.config(command=self.items.yview)
 
 class ManageBarcodes(Frame):
     def __init__(self, parent, controller):
@@ -465,6 +496,7 @@ class ManageBarcodes(Frame):
         title_font = ("Cooper Black", 30)
         button_font = ("Century Gothic", 16, "bold")
         listbox_font = ("Century Gothic", 14)
+        self.new_item = None
 
         title = Label(self, text="Barcode Manager")
         title.grid(row=0, column=0, padx=10, pady=10)
@@ -487,33 +519,96 @@ class ManageBarcodes(Frame):
         items.config(font=listbox_font)
 
         scroll = Scrollbar(self)
-        scroll.grid(row=1, column=6)
+        scroll.grid(row=2, column=6)
         items.config(yscrollcommand=scroll.set)
         scroll.config(command=items.yview)
 
-        field = Entry(self)
-        field.grid(row=2, column=1, padx=10, pady=10)
-        field.config(font=listbox_font)
+        self.field = Entry(self)
+        self.field.grid(row=3, column=1, padx=10, pady=10)
+        self.field.config(font=listbox_font)
+        self.field.bind("<Return>", lambda event: self.addItem(items, self.field, event))
+        self.field.grid_forget()
 
-        add = Button(self, text="ADD", command = lambda: self.addItem(items, field))
-        add.grid(row=3, column=1, padx=10, pady=10)
-        add.config(font=button_font)
+        self.scan = Label(self, text="Scan a barcode")
+        self.scan.grid(row=2, column=1, padx=10, pady=10)
+        self.scan.config(font=listbox_font)
+        self.scan.grid_forget()
 
-    def addItem(self, listbox, entry):
+        # add = Button(self, text="ADD", command = lambda: self.addItem(items, field))
+        # add.grid(row=3, column=1, padx=10, pady=10)
+        # add.config(font=button_font)
+
+        remove = Button(self, text="REMOVE", command = lambda: self.removeItem(items))
+        remove.grid(row=5, column=2, padx=10, pady=10)
+        remove.config(font=button_font)
+
+        item_name = Entry(self)
+        item_name.grid(row=3, column=0, padx=10, pady=10)
+        item_name.config(font=listbox_font)
+        
+        name_label = Label(self, text="What would you like to name this item?")
+        name_label.grid(row=2, column=0, padx=10, pady=10)
+        name_label.config(font=listbox_font)
+        
+        button = Button(self, text="NAME", command= lambda: self.getItemName(item_name))
+        button.grid(row=4, column=0, padx=10, pady=10)
+        button.config(font=button_font)
+
+        self.double_barcode = Label(self, text="")
+        self.double_barcode.grid(row=5, column=0, padx=10, pady=10)
+        self.double_barcode.config(font=listbox_font)
+
+    def getItemName(self, entry):
+        self.new_item = entry.get()
+        self.scan.grid(row=2, column=1, padx=10, pady=10)
+        self.field.grid(row=3, column=1, padx=10, pady=10)
+        self.double_barcode.config(text="")
+        entry.delete(0, END)
+        
+    def addItem(self, listbox, entry, event):
         barcode = entry.get()
         if (barcode in barcodes):
             index = listbox.get(0, "end").index(barcodes[barcode])
             listbox.selection_set(index)
             listbox.see(index)
+            self.double_barcode.config(text=f"This barcode is already set as {barcodes[barcode]}.\nTry using another barcode\nor removing {barcodes[barcode]} from the list.")
         else:
-            item_name = input("What would you like to name this item? " )
-            barcodes[barcode] = item_name
+            self.scan.grid_forget()
+            self.field.grid_forget()
+            if (self.new_item is not None):
+                barcodes[barcode] = self.new_item
             listbox.delete(0, END)
             count = 0
             for barcode in barcodes:
                 listbox.insert(count + 1, barcodes[barcode])
                 count += 1
+            self.new_item = None
         entry.delete(0, END)
+
+    def removeItem(self, listbox):
+        item = listbox.get(listbox.curselection()[0])
+        keys = list(barcodes.keys())
+        names = list(barcodes.values())
+        index = names.index(item)
+        barcode = keys[index]
+        del barcodes[barcode]
+        listbox.delete(0, END)
+        count = 0
+        for barcode in barcodes:
+            listbox.insert(count + 1, barcodes[barcode])
+            count += 1
+        if (item in shelf_one_items.items):
+            shelf_one_items.items.remove(item)
+        if (item in shelf_two_items.items):
+            shelf_two_items.items.remove(item)
+        if (item in shelf_three_items.items):
+            shelf_three_items.items.remove(item)
+        if (item in shelf_four_items.items):
+            shelf_four_items.items.remove(item)
+        if (item in shelf_five_items.items):
+            shelf_five_items.items.remove(item)
+        if (item in shelf_six_items.items):
+            shelf_six_items.items.remove(item)
 
 app = ShelfApp()
 app.title("The Shelfinator")
