@@ -493,16 +493,17 @@ class Six(Frame):
 class ManageBarcodes(Frame):
     def __init__(self, parent, controller):
         Frame.__init__(self, parent)
+        Frame.configure(self, bg="#fee3ff")
         title_font = ("Cooper Black", 30)
         button_font = ("Century Gothic", 16, "bold")
         listbox_font = ("Century Gothic", 14)
         self.new_item = None
 
-        title = Label(self, text="Barcode Manager")
+        title = Label(self, text="Barcode Manager", bg="#fee3ff", fg="#ff1988")
         title.grid(row=0, column=0, padx=10, pady=10)
         title.config(font=title_font)
 
-        home = Button(self, text="Home Page", command = lambda: controller.showFrame(Home))
+        home = Button(self, text="Home Page", bg="#b9edfa", fg="black", command = lambda: controller.showFrame(Home))
         home.grid(row=1, column=0, padx=10, pady=10)
         home.config(font=button_font)
 
