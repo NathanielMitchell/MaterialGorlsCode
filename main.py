@@ -1,5 +1,4 @@
 from tkinter import *
-from turtle import home
 import pickle
 
 # grab the barcodes from the previous section unless there are none
@@ -115,54 +114,59 @@ except FileNotFoundError:
 class Home(Frame):
     def __init__(self, parent, controller):
         Frame.__init__(self, parent)
+        BG_COLOR = "#ffe3e3"
+        Frame.configure(self, bg=BG_COLOR)
         self.controller = controller
         # set fonts
         title_font = ("Cooper Black", 30)
         button_font = ("Century Gothic", 16, "bold")
         listbox_font = ("Century Gothic", 14)
+        BUTTON_BG = "#ffbfbf"
+        LABEL_FG = "#850000"
+        TITLE_FG = "#ff0000"
 
         # create a title
-        label = Label(self, text ="Home Page")
+        label = Label(self, bg=BG_COLOR, fg=TITLE_FG, text ="Home Page")
         label.grid(row=0, column=1, padx=10, pady=10)
         label.config(font=title_font)
 
         # create buttons to navigate to each shelf
-        button1 = Button(self, text="Shelf 1", background="pink", command = lambda: controller.showFrame(One))
+        button1 = Button(self, bg=BUTTON_BG, fg="black", text="Shelf 1", background="pink", command = lambda: controller.showFrame(One))
         button1.grid(row=1, column=0, padx=10, pady=10)
         button1.config(font=button_font)
 
-        button2 = Button(self, text="Shelf 2", background="pink", command = lambda: controller.showFrame(Two))
+        button2 = Button(self, bg=BUTTON_BG, fg="black", text="Shelf 2", background="pink", command = lambda: controller.showFrame(Two))
         button2.grid(row=2, column=0, padx=10, pady=10)
         button2.config(font=button_font)
 
-        button3 = Button(self, text="Shelf 3", background="pink", command = lambda: controller.showFrame(Three))
+        button3 = Button(self, bg=BUTTON_BG, fg="black", text="Shelf 3", background="pink", command = lambda: controller.showFrame(Three))
         button3.grid(row=1, column=1, padx=10, pady=10)
         button3.config(font=button_font)
 
-        button4 = Button(self, text="Shelf 4", background="pink", command = lambda: controller.showFrame(Four))
+        button4 = Button(self, bg=BUTTON_BG, fg="black", text="Shelf 4", background="pink", command = lambda: controller.showFrame(Four))
         button4.grid(row=2, column=1, padx=10, pady=10)
         button4.config(font=button_font)
 
-        button5 = Button(self, text="Shelf 5", background="pink", command = lambda: controller.showFrame(Five))
+        button5 = Button(self, bg=BUTTON_BG, fg="black", text="Shelf 5", background="pink", command = lambda: controller.showFrame(Five))
         button5.grid(row=1, column=2, padx=10, pady=10)
         button5.config(font=button_font)
 
-        button6 = Button(self, text="Shelf 6", background="pink", command = lambda: controller.showFrame(Six))
+        button6 = Button(self, bg=BUTTON_BG, fg="black", text="Shelf 6", background="pink", command = lambda: controller.showFrame(Six))
         button6.grid(row=2, column=2, padx=10, pady=10)
         button6.config(font=button_font)
 
-        manage_barcodes = Button(self, text="Barcode Manager", background="pink", command = lambda: controller.showFrame(ManageBarcodes))
+        manage_barcodes = Button(self, bg=BUTTON_BG, fg="black", text="Barcode Manager", background="pink", command = lambda: controller.showFrame(ManageBarcodes))
         manage_barcodes.grid(row=3, column=1, padx=10, pady=10)
         manage_barcodes.config(font=button_font)
 
         # create a label in case the text in the searchable field isn't found
-        # set it to empty until the search button is used
-        self.not_found = Label(self, text="Search", fg="black")
+        # set it to search until the search button is used
+        self.not_found = Label(self, text="Search", bg=BG_COLOR, fg=LABEL_FG)
         self.not_found.grid(row=4, columnspan=3, column=2, padx=10, pady=10)
         self.not_found.config(font=listbox_font)
 
         # create a searchable field
-        self.field = Entry(self)
+        self.field = Entry(self, bg=BG_COLOR, fg=LABEL_FG)
         self.field.grid(row=4, column=1, padx=10, pady=10)
         self.field.config(font=listbox_font)
         self.field.bind("<Return>", self.searchItems)
@@ -233,82 +237,91 @@ class Home(Frame):
 
 class One(Frame):
     def __init__(self, parent, controller):
+        Frame.__init__(self, parent)
+        BG_COLOR = "#fff4d9"
+        Frame.configure(self, bg=BG_COLOR)
         title_font = ("Cooper Black", 30)
         button_font = ("Century Gothic", 16, "bold")
         listbox_font = ("Century Gothic", 14)
-        Frame.__init__(self, parent)
+        BUTTON_BG = "#ffe3a1"
+        LABEL_FG = "#b38314"
+        TITLE_FG = "#ffb300"
         
-        title = Label(self, text="Shelf One")
+        title = Label(self, bg=BG_COLOR, fg=TITLE_FG, text="Shelf One")
         title.grid(row=0, column=0, padx=10, pady=10)
         title.config(font=title_font)
 
-        home = Button(self, text="Home Page", command = lambda: controller.showFrame(Home))
+        home = Button(self, bg=BUTTON_BG, fg="black",  text="Home Page", command = lambda: controller.showFrame(Home))
         home.grid(row=1, column=0, padx=10, pady=10)
         home.config(font=button_font)
 
-        items_label = Label(self, text=f"Items on Shelf One: ")
+        items_label = Label(self, bg=BG_COLOR, fg=LABEL_FG, text=f"Items on Shelf One: ")
         items_label.grid(row=0, column=5, padx=10, pady=10)
         items_label.config(font=button_font)
 
-        self.items = Listbox(self)
+        self.items = Listbox(self, fg=LABEL_FG)
         self.items.grid(row=1, rowspan=4, column=5, columnspan=2, padx=10, pady=10)
         for i in range(len(shelf_one_items.items)):
             self.items.insert(i + 1, shelf_one_items.items[i])
         self.items.config(font=listbox_font)
 
-        field = Entry(self)
+        field = Entry(self, bg=BG_COLOR, fg=LABEL_FG)
         field.grid(row=2, column=0, padx=10, pady=10)
         field.config(font=listbox_font)
         field.bind("<Return>", lambda event: shelf_one_items.addItem(event, field, self.items))
 
-        # add = Button(self, text="ADD", command = lambda: shelf_one_items.addItem(field, items))
-        # add.grid(row=2, column=1, padx=10, pady=10)
-        # add.config(font=button_font)
-
-        grab = Button(self, text="REMOVE", command = lambda: shelf_one_items.removeItem(self.items))
+        grab = Button(self, bg=BUTTON_BG, fg="black", text="REMOVE", command = lambda: shelf_one_items.removeItem(self.items))
         grab.grid(row=3, column=1, padx=10, pady=10)
         grab.config(font=button_font)
 
         scroll = Scrollbar(self)
-        scroll.grid(row=1, column=6)
+        scroll.grid(row=0, column=6)
         self.items.config(yscrollcommand=scroll.set)
         scroll.config(command=self.items.yview)
+
+        move_to_shelf = Button(self, bg=BUTTON_BG, fg="black", text="Go to Shelf One", command=lambda: self.goToShelfOne())
+        move_to_shelf.grid(row=3, column=0, padx=10, pady=10)
+        move_to_shelf.config(font=button_font)
+
+    def goToShelfOne(self):
+        print ("Arrived at Shelf One.")
 
 class Two(Frame):
     def __init__(self, parent, controller):
         Frame.__init__(self, parent)
+        BG_COLOR = "#fdffde"
+        Frame.configure(self, bg=BG_COLOR)
         title_font = ("Cooper Black", 30)
         button_font = ("Century Gothic", 16, "bold")
         listbox_font = ("Century Gothic", 14)
+        BUTTON_BG = "#fbffab"
+        LABEL_FG = "#7f851d"
+        TITLE_FG = "#cbd600"
 
-        title = Label(self, text="Shelf Two")
+        title = Label(self, bg=BG_COLOR, fg=TITLE_FG, text="Shelf Two")
         title.grid(row=0, column=0, padx=10, pady=10)
         title.config(font=title_font)
 
-        home = Button(self, text="Home Page", command = lambda: controller.showFrame(Home))
+        home = Button(self, bg=BUTTON_BG, fg="black", text="Home Page", command = lambda: controller.showFrame(Home))
         home.grid(row=1, column=0, padx=10, pady=10)
         home.config(font=button_font)
 
-        items_label = Label(self, text=f"Items on Shelf Two: ")
+        items_label = Label(self, bg=BG_COLOR, fg=LABEL_FG, text=f"Items on Shelf Two: ")
         items_label.grid(row=0, column=5, padx=10, pady=10)
         items_label.config(font=button_font)
 
-        self.items = Listbox(self)
+        self.items = Listbox(self, fg=LABEL_FG)
         self.items.grid(row=1, column=5, rowspan=4, columnspan=2, padx=10, pady=10)
         for i in range(len(shelf_two_items.items)):
             self.items.insert(i + 1, shelf_two_items.items[i])
         self.items.config(font=listbox_font)
 
-        field = Entry(self)
+        field = Entry(self, bg=BG_COLOR, fg=LABEL_FG)
         field.grid(row=2, column=0, padx=10, pady=10)
         field.config(font=listbox_font)
         field.bind("<Return>", lambda event: shelf_two_items.addItem(event, field, self.items))
 
-        # add = Button(self, text="ADD", command = lambda: shelf_two_items.addItem(field, items))
-        # add.grid(row=2, column=1, padx=10, pady=10)
-        # add.config(font=button_font)
-
-        grab = Button(self, text="REMOVE", command = lambda: shelf_two_items.removeItem(self.items))
+        grab = Button(self, bg=BUTTON_BG, fg="black", text="REMOVE", command = lambda: shelf_two_items.removeItem(self.items))
         grab.grid(row=3, column=1, padx=10, pady=10)
         grab.config(font=button_font)
 
@@ -317,41 +330,49 @@ class Two(Frame):
         self.items.config(yscrollcommand=scroll.set)
         scroll.config(command=self.items.yview)
 
+        move_to_shelf = Button(self, bg=BUTTON_BG, fg="black", text="Go to Shelf Two", command=lambda: self.goToShelfTwo())
+        move_to_shelf.grid(row=3, column=0, padx=10, pady=10)
+        move_to_shelf.config(font=button_font)
+
+    def goToShelfTwo(self):
+        print ("Arrived at Shelf Two.")
+
 class Three(Frame):
     def __init__(self, parent, controller):
         Frame.__init__(self, parent)
+        BG_COLOR = "#dbffd9"
+        Frame.configure(self, bg=BG_COLOR)
         title_font = ("Cooper Black", 30)
         button_font = ("Century Gothic", 16, "bold")
         listbox_font = ("Century Gothic", 14)
+        BUTTON_BG = "#a2ff9c"
+        LABEL_FG = "#076900"
+        TITLE_FG = "#11ff00"
 
-        title = Label(self, text="Shelf Three")
+        title = Label(self, bg=BG_COLOR, fg=TITLE_FG, text="Shelf Three")
         title.grid(row=0, column=0, padx=10, pady=10)
         title.config(font=title_font)
 
-        home = Button(self, text="Home Page", command = lambda: controller.showFrame(Home))
+        home = Button(self, bg=BUTTON_BG, fg="black", text="Home Page", command = lambda: controller.showFrame(Home))
         home.grid(row=1, column=0, padx=10, pady=10)
         home.config(font=button_font)
 
-        items_label = Label(self, text=f"Items on Shelf Three: ")
+        items_label = Label(self, bg=BG_COLOR, fg=LABEL_FG, text=f"Items on Shelf Three: ")
         items_label.grid(row=0, column=5, padx=10, pady=10)
         items_label.config(font=button_font)
 
-        self.items = Listbox(self)
+        self.items = Listbox(self, fg=LABEL_FG)
         self.items.grid(row=1, column=5, rowspan=4, columnspan=2, padx=10, pady=10)
         for i in range(len(shelf_three_items.items)):
             self.items.insert(i + 1, shelf_three_items.items[i])
         self.items.config(font=listbox_font)
 
-        field = Entry(self)
+        field = Entry(self, bg=BG_COLOR, fg=LABEL_FG)
         field.grid(row=2, column=0, padx=10, pady=10)
         field.config(font=listbox_font)
         field.bind("<Return>", lambda event: shelf_three_items.addItem(event, field, self.items))
 
-        # add = Button(self, text="ADD", command = lambda: shelf_three_items.addItem(field, items))
-        # add.grid(row=2, column=1, padx=10, pady=10)
-        # add.config(font=button_font)
-
-        grab = Button(self, text="REMOVE", command = lambda: shelf_three_items.removeItem(self.items))
+        grab = Button(self, bg=BUTTON_BG, fg="black", text="REMOVE", command = lambda: shelf_three_items.removeItem(self.items))
         grab.grid(row=3, column=1, padx=10, pady=10)
         grab.config(font=button_font)
 
@@ -360,41 +381,49 @@ class Three(Frame):
         self.items.config(yscrollcommand=scroll.set)
         scroll.config(command=self.items.yview)
 
+        move_to_shelf = Button(self, bg=BUTTON_BG, fg="black", text="Go to Shelf Three", command=lambda: self.goToShelfThree())
+        move_to_shelf.grid(row=3, column=0, padx=10, pady=10)
+        move_to_shelf.config(font=button_font)
+
+    def goToShelfThree(self):
+        print ("Arrived at Shelf Three.")
+
 class Four(Frame):
     def __init__(self, parent, controller):
         Frame.__init__(self, parent)
+        BG_COLOR = "#d6fffe"
+        Frame.configure(self, bg=BG_COLOR)
         title_font = ("Cooper Black", 30)
         button_font = ("Century Gothic", 16, "bold")
         listbox_font = ("Century Gothic", 14)
+        BUTTON_BG = "#96fffc"
+        LABEL_FG = "#00736f"
+        TITLE_FG = "#00e0d9"
 
-        title = Label(self, text="Shelf Four")
+        title = Label(self, bg=BG_COLOR, fg=TITLE_FG, text="Shelf Four")
         title.grid(row=0, column=0, padx=10, pady=10)
         title.config(font=title_font)
 
-        home = Button(self, text="Home Page", command = lambda: controller.showFrame(Home))
+        home = Button(self, bg=BUTTON_BG, fg="black", text="Home Page", command = lambda: controller.showFrame(Home))
         home.grid(row=1, column=0, padx=10, pady=10)
         home.config(font=button_font)
 
-        items_label = Label(self, text=f"Items on Shelf Four: ")
+        items_label = Label(self, bg=BG_COLOR, fg=LABEL_FG, text=f"Items on Shelf Four: ")
         items_label.grid(row=0, column=5, padx=10, pady=10)
         items_label.config(font=button_font)
 
-        self.items = Listbox(self)
+        self.items = Listbox(self, fg=LABEL_FG)
         self.items.grid(row=1, column=5, rowspan=4, columnspan=2, padx=10, pady=10)
         for i in range(len(shelf_four_items.items)):
             self.items.insert(i + 1, shelf_four_items.items[i])
         self.items.config(font=listbox_font)
 
-        field = Entry(self)
+        field = Entry(self, bg=BG_COLOR, fg=LABEL_FG)
         field.grid(row=2, column=0, padx=10, pady=10)
         field.config(font=listbox_font)
         field.bind("<Return>", lambda event: shelf_four_items.addItem(event, field, self.items))
 
-        # add = Button(self, text="ADD", command = lambda: shelf_four_items.addItem(field, items))
-        # add.grid(row=2, column=1, padx=10, pady=10)
-        # add.config(font=button_font)
-
-        grab = Button(self, text="REMOVE", command = lambda: shelf_four_items.removeItem(self.items))
+        grab = Button(self, bg=BUTTON_BG, fg="black", text="REMOVE", command = lambda: shelf_four_items.removeItem(self.items))
         grab.grid(row=3, column=1, padx=10, pady=10)
         grab.config(font=button_font)
 
@@ -403,41 +432,49 @@ class Four(Frame):
         self.items.config(yscrollcommand=scroll.set)
         scroll.config(command=self.items.yview)
 
+        move_to_shelf = Button(self, bg=BUTTON_BG, fg="black", text="Go to Shelf Four", command=lambda: self.goToShelfFour())
+        move_to_shelf.grid(row=3, column=0, padx=10, pady=10)
+        move_to_shelf.config(font=button_font)
+
+    def goToShelfFour(self):
+        print ("Arrived at Shelf Four.")
+
 class Five(Frame):
     def __init__(self, parent, controller):
         Frame.__init__(self, parent)
+        BG_COLOR = "#d4d4ff"
+        Frame.configure(self, bg=BG_COLOR)
         title_font = ("Cooper Black", 30)
         button_font = ("Century Gothic", 16, "bold")
         listbox_font = ("Century Gothic", 14)
+        BUTTON_BG = "#a7a6ff"
+        LABEL_FG = "#020073"
+        TITLE_FG = "#0400ff"
 
-        title = Label(self, text="Shelf Five")
+        title = Label(self, bg=BG_COLOR, fg=TITLE_FG, text="Shelf Five")
         title.grid(row=0, column=0, padx=10, pady=10)
         title.config(font=title_font)
 
-        home = Button(self, text="Home Page", command = lambda: controller.showFrame(Home))
+        home = Button(self, bg=BUTTON_BG, fg="black", text="Home Page", command = lambda: controller.showFrame(Home))
         home.grid(row=1, column=0, padx=10, pady=10)
         home.config(font=button_font)
 
-        items_label = Label(self, text=f"Items on Shelf Five: ")
+        items_label = Label(self, bg=BG_COLOR, fg=LABEL_FG, text=f"Items on Shelf Five: ")
         items_label.grid(row=0, column=5, padx=10, pady=10)
         items_label.config(font=button_font)
 
-        self.items = Listbox(self)
+        self.items = Listbox(self, fg=LABEL_FG)
         self.items.grid(row=1, column=5, rowspan=4, columnspan=2, padx=10, pady=10)
         for i in range(len(shelf_five_items.items)):
             self.items.insert(i + 1, shelf_five_items.items[i])
         self.items.config(font=listbox_font)
 
-        field = Entry(self)
+        field = Entry(self, bg=BG_COLOR, fg=LABEL_FG)
         field.grid(row=2, column=0, padx=10, pady=10)
         field.config(font=listbox_font)
         field.bind("<Return>", lambda event: shelf_five_items.addItem(event, field, self.items))
 
-        # add = Button(self, text="ADD", command = lambda: shelf_five_items.addItem(field, items))
-        # add.grid(row=2, column=1, padx=10, pady=10)
-        # add.config(font=button_font)
-
-        grab = Button(self, text="REMOVE", command = lambda: shelf_five_items.removeItem(self.items))
+        grab = Button(self, bg=BUTTON_BG, fg="black", text="REMOVE", command = lambda: shelf_five_items.removeItem(self.items))
         grab.grid(row=3, column=1, padx=10, pady=10)
         grab.config(font=button_font)
 
@@ -446,42 +483,49 @@ class Five(Frame):
         self.items.config(yscrollcommand=scroll.set)
         scroll.config(command=self.items.yview)
 
+        move_to_shelf = Button(self, fg="black", bg=BUTTON_BG, text="Go to Shelf Five", command=lambda: self.goToShelfFive())
+        move_to_shelf.grid(row=3, column=0, padx=10, pady=10)
+        move_to_shelf.config(font=button_font)
+
+    def goToShelfFive(self):
+        print ("Arrived at Shelf Five.")
 
 class Six(Frame):
     def __init__(self, parent, controller):
         Frame.__init__(self, parent)
+        BG_COLOR = "#f0d1ff"
+        Frame.configure(self, bg=BG_COLOR)
         title_font = ("Cooper Black", 30)
         button_font = ("Century Gothic", 16, "bold")
         listbox_font = ("Century Gothic", 14)
+        BUTTON_BG = "#e09cff"
+        LABEL_FG = "#570080"
+        TITLE_FG = "#ae00ff"
 
-        title = Label(self, text="Shelf Six")
+        title = Label(self, bg=BG_COLOR, fg=TITLE_FG, text="Shelf Six")
         title.grid(row=0, column=0, padx=10, pady=10)
         title.config(font=title_font)
 
-        home = Button(self, text="Home Page", command = lambda: controller.showFrame(Home))
+        home = Button(self, bg=BUTTON_BG, fg="black", text="Home Page", command = lambda: controller.showFrame(Home))
         home.grid(row=1, column=0, padx=10, pady=10)
         home.config(font=button_font)
 
-        items_label = Label(self, text=f"Items on Shelf Six: ")
+        items_label = Label(self, bg=BG_COLOR, fg=LABEL_FG, text=f"Items on Shelf Six: ")
         items_label.grid(row=0, column=5, columnspan=2, padx=10, pady=10)
         items_label.config(font=button_font)
 
-        self.items = Listbox(self)
+        self.items = Listbox(self, fg=LABEL_FG)
         self.items.grid(row=1, column=5, rowspan=4, columnspan=2, padx=10, pady=10)
         for i in range(len(shelf_six_items.items)):
             self.items.insert(i + 1, shelf_six_items.items[i])
         self.items.config(font=listbox_font)
 
-        field = Entry(self)
+        field = Entry(self, bg=BG_COLOR, fg=LABEL_FG)
         field.grid(row=2, column=0, padx=10, pady=10)
         field.config(font=listbox_font)
         field.bind("<Return>", lambda event: shelf_six_items.addItem(event, field, self.items))
 
-        # add = Button(self, text="ADD", command = lambda: shelf_six_items.addItem(field, items))
-        # add.grid(row=2, column=1, padx=10, pady=10)
-        # add.config(font=button_font)
-
-        grab = Button(self, text="REMOVE", command = lambda: shelf_six_items.removeItem(self.items))
+        grab = Button(self, fg="black", bg=BUTTON_BG, text="REMOVE", command = lambda: shelf_six_items.removeItem(self.items))
         grab.grid(row=3, column=1, padx=10, pady=10)
         grab.config(font=button_font)
 
@@ -490,28 +534,39 @@ class Six(Frame):
         self.items.config(yscrollcommand=scroll.set)
         scroll.config(command=self.items.yview)
 
+        move_to_shelf = Button(self, fg="black", bg=BUTTON_BG, text="Go to Shelf Six", command=lambda: self.goToShelfSix())
+        move_to_shelf.grid(row=3, column=0, padx=10, pady=10)
+        move_to_shelf.config(font=button_font)
+
+    def goToShelfSix(self):
+        print ("Arrived at Shelf Six.")
+
 class ManageBarcodes(Frame):
     def __init__(self, parent, controller):
         Frame.__init__(self, parent)
-        Frame.configure(self, bg="#fee3ff")
+        BG_COLOR = "#fee3ff"
+        Frame.configure(self, bg=BG_COLOR)
         title_font = ("Cooper Black", 30)
         button_font = ("Century Gothic", 16, "bold")
         listbox_font = ("Century Gothic", 14)
         self.new_item = None
+        BUTTON_BG = "#ff94db"
+        LABEL_FG = "#73004d"
+        TITLE_FG = "#ff1988"
 
-        title = Label(self, text="Barcode Manager", bg="#fee3ff", fg="#ff1988")
+        title = Label(self, text="Barcode Manager", bg=BG_COLOR, fg=TITLE_FG)
         title.grid(row=0, column=0, padx=10, pady=10)
         title.config(font=title_font)
 
-        home = Button(self, text="Home Page", bg="#b9edfa", fg="black", command = lambda: controller.showFrame(Home))
+        home = Button(self, text="Home Page", bg=BUTTON_BG, fg="black", command = lambda: controller.showFrame(Home))
         home.grid(row=1, column=0, padx=10, pady=10)
         home.config(font=button_font)
 
-        items_label = Label(self, text=f"Items Saved to Barcodes: ")
+        items_label = Label(self, bg=BG_COLOR, fg=TITLE_FG, text=f"Items Saved to Barcodes: ")
         items_label.grid(row=0, column=5, columnspan=2, padx=10, pady=10)
         items_label.config(font=button_font)
 
-        items = Listbox(self)
+        items = Listbox(self, fg=LABEL_FG)
         items.grid(row=1, column=5, rowspan=4, columnspan=2, padx=10, pady=10)
         count = 0
         for barcode in barcodes:
@@ -524,38 +579,34 @@ class ManageBarcodes(Frame):
         items.config(yscrollcommand=scroll.set)
         scroll.config(command=items.yview)
 
-        self.field = Entry(self)
+        self.field = Entry(self, bg=BG_COLOR, fg=LABEL_FG)
         self.field.grid(row=3, column=1, padx=10, pady=10)
         self.field.config(font=listbox_font)
         self.field.bind("<Return>", lambda event: self.addItem(items, self.field, event))
         self.field.grid_forget()
 
-        self.scan = Label(self, text="Scan a barcode")
+        self.scan = Label(self, bg=BG_COLOR, fg=LABEL_FG, text="Scan a barcode")
         self.scan.grid(row=2, column=1, padx=10, pady=10)
         self.scan.config(font=listbox_font)
         self.scan.grid_forget()
 
-        # add = Button(self, text="ADD", command = lambda: self.addItem(items, field))
-        # add.grid(row=3, column=1, padx=10, pady=10)
-        # add.config(font=button_font)
-
-        remove = Button(self, text="REMOVE", command = lambda: self.removeItem(items))
+        remove = Button(self, bg=BUTTON_BG, text="REMOVE", command = lambda: self.removeItem(items))
         remove.grid(row=5, column=2, padx=10, pady=10)
         remove.config(font=button_font)
 
-        item_name = Entry(self)
+        item_name = Entry(self, bg=BG_COLOR, fg=LABEL_FG)
         item_name.grid(row=3, column=0, padx=10, pady=10)
         item_name.config(font=listbox_font)
         
-        name_label = Label(self, text="What would you like to name this item?")
+        name_label = Label(self, text="What would you like to name this item?", bg=BG_COLOR, fg=LABEL_FG)
         name_label.grid(row=2, column=0, padx=10, pady=10)
         name_label.config(font=listbox_font)
         
-        button = Button(self, text="NAME", command= lambda: self.getItemName(item_name))
+        button = Button(self, bg=BUTTON_BG, text="NAME", command= lambda: self.getItemName(item_name))
         button.grid(row=4, column=0, padx=10, pady=10)
         button.config(font=button_font)
 
-        self.double_barcode = Label(self, text="")
+        self.double_barcode = Label(self, bg=BG_COLOR, fg="red", text="")
         self.double_barcode.grid(row=5, column=0, padx=10, pady=10)
         self.double_barcode.config(font=listbox_font)
 
