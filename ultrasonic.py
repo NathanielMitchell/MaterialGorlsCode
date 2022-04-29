@@ -65,6 +65,14 @@ class UltraSonic:
 		distance *= 100
 		
 		return distance
+	
+	def trackShelf(self):
+		distance = sensor.getDistance() * correctionFactor
+		distance = round(distance, 4)
+		difference = distance - sensor.previousMeasurement
+		if (difference > 2):
+			"ShelfNumber++"
+		sensor.previousMeasurement = distance
 
 ########
 # Main #
@@ -115,9 +123,8 @@ while (True):
 	distance = round(distance, 4)
 	difference = distance - sensor.previousMeasurement
 	if (difference > 2):
-		print("there is a new shelf")
+		"ShelfNumber++"
 
-	print(distance)
 	sensor.previousMeasurement = distance
 
 """So, i pulled a lot of this straight from the old pi assignment, but i made it more object oriented.
