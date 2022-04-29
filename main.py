@@ -210,6 +210,12 @@ class Home(Frame):
     # change the titles of all buttons to match shelf titles
     # once the Home Button label is clicked
     def changeTitle(self, event):
+        color = shelf_colors[0]
+        self.BG_COLOR = (color_themes[color])[0]
+        self.BUTTON_BG = (color_themes[color])[1]
+        self.LABEL_FG = (color_themes[color])[2]
+        self.TITLE_FG = (color_themes[color])[3]
+        Frame.configure(bg=self.BG_COLOR)
 
         # change titles and button colors
         self.label.config(text=f"{frames[0]}")
@@ -855,6 +861,12 @@ class ManageBarcodes(Frame):
         self.double_barcode.config(font=listbox_font)
 
     def changeColor(self, event):
+        color = shelf_colors[7]
+        self.BG_COLOR = (color_themes[color])[0]
+        self.BUTTON_BG = (color_themes[color])[1]
+        self.LABEL_FG = (color_themes[color])[2]
+        self.TITLE_FG = (color_themes[color])[3]
+        Frame.configure(bg=self.BG_COLOR)
         self.title.config(bg=self.BG_COLOR, fg=self.TITLE_FG, text=f"{frames[7]}")
         self.home.config(bg=self.BUTTON_BG, text=f"{frames[0]}")
         self.items_label.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
@@ -994,6 +1006,12 @@ class Settings(Frame):
         self.current_shelf = frames[0]
 
     def changeColor(self, event):
+        color = shelf_colors[8]
+        self.BG_COLOR = (color_themes[color])[0]
+        self.BUTTON_BG = (color_themes[color])[1]
+        self.LABEL_FG = (color_themes[color])[2]
+        self.TITLE_FG = (color_themes[color])[3]
+        Frame.configure(bg=self.BG_COLOR)
         self.title.config(text=f"{frames[8]}", bg=self.BG_COLOR, fg=self.TITLE_FG)
         self.home.config(text=f"{frames[0]}", bg=self.BUTTON_BG)
         self.shelf_names.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
