@@ -6,31 +6,30 @@ class Motor:
 	def __init__(self):
 		self.pwmFreq = 1000
 
-	def shelfCall(self, targetShelf, currShelf):
+	def shelfCall(self, targetShelf):
 		if (targetShelf != currShelf):
-			GPIO.output(dirPin1, True)
-			GPIO.output(dirPin2, False)
+			GPIO.output(DIR_PIN_1, True)
+			GPIO.output(DIR_PIN_2, False)
 			for duty in range (0, 101):
 				pi_pwm.ChangeDutyCycle(duty)
 				sensor.trackShelf()
 				sleep(0.01)
 			while (currShelf != targetShelf):
 				sensor.trackShelf() # Placeholder
-				currShelf = "Whatever the current shelf on the rest of the code is"
-			while (sensor.getDistance() > "stopPoint"):
-				duty = (100/"totDIst") * ("currDist - finDist")
+			while (sensor.getDistance() > finDist):
+				duty = (100/10) * (sensor.getDistance - finDist)
 				if (duty > 0):
 					pi_pwm.ChangeDutyCycle(duty)
-				elif ("currDist <= finDist"):
+				elif (sensor.getDistance() <= finDist):
 					pi_pwm.ChangeDutyCycle(0)
-			GPIO.output(dirPin1, False)
-			GPIO.output(dirPin2, False)
+			GPIO.output(DIR_PIN_1, False)
+			GPIO.output(DIR_PIN_2, False)
 			
 
 class UltraSonic:
 	
 	def __init__(self):
-		self.calibrationDistance = 10
+		self.calibrationDistance = 5
 		# the previous measurement is used for determining if a shelf has gone by
 		self.previousMeasurement = self.calibrationDistance
 
@@ -38,11 +37,7 @@ class UltraSonic:
 
 	# Calibrates the sensor for proper distance measurments
 	def calibrate(self):
-		print("Calibrating...")
-		print("Place the sensor a known distance away from am object")
 		knownDistance = self.calibrationDistance
-		print("Getting calibration measurements")
-		print("Done.")
 		distanceAverage = 0
 		
 		# Compares known distance to average calibration distances
@@ -53,14 +48,7 @@ class UltraSonic:
 			sleep(CALIBRATION_DELAY)
 			
 		distanceAverage /= CALIBRATIONS
-		
-		print(f"Average distance is {distanceAverage}")
-		
 		correctionFactor = knownDistance / distanceAverage
-		
-		print(f"Correction factor is {correctionFactor}")
-		print("")
-		
 		return(correctionFactor)
 		
 	# Finds the distance from the US sensor in cm
@@ -89,8 +77,9 @@ class UltraSonic:
 		distance = round(distance, 4)
 		difference = distance - sensor.previousMeasurement
 		if (difference > 2):
-			"ShelfNumber++"
+			currShelf += 1
 		sensor.previousMeasurement = distance
+		print(currShelf)
 
 ########
 # Main #
@@ -112,9 +101,9 @@ GPIO.setmode(GPIO.BCM)
 # pins
 TRIG = 12
 ECHO = 20
-MOTOR_SIGNAL = 13
-DIR_PIN_1 = 16
-DIR_PIN_2 = 17
+MOTOR_SIGNAL = 27
+DIR_PIN_1 = 26
+DIR_PIN_2 = 25
 
 # pin setups
 GPIO.setup(TRIG, GPIO.OUT)
@@ -129,4 +118,13 @@ correctionFactor = sensor.calibrate()
 motor = Motor()
 pi_pwm = GPIO.PWM(MOTOR_SIGNAL, 1000)		#create PWM instance with frequency
 pi_pwm.start(0)				#start PWM of required Duty Cycle 
+
+currShelf = 1
+
+finDist = sensor.calibrationDistance
+
+sensor.calibrate()
+
+motor.shelfCall(4)
+
 
