@@ -88,7 +88,7 @@ class ItemList():
         else:
             item = entry.get()
         # append the text from the entry field or the item stored with the barcode to the list of shelf items
-        self.items.append(item)
+        self.items.append(item.lower())
         # delete everything out of the list box to reset it
         label.delete(0, END)
         # put everything back in the list box
@@ -159,8 +159,7 @@ class Home(Frame):
         self.label = Label(self, text=f"Home Page")
         self.label.grid(row=0, column=1, padx=10, pady=10)
         self.label.config(font=self.title_font, bg=self.BG_COLOR, fg=self.TITLE_FG)
-        self.label.bind("<Button-1>", lambda event: self.changeTitle(event))
-
+        
         # create buttons to navigate to each shelf
         self.button1 = Button(self, bg=self.BUTTON_BG, fg="black", text=f"{frames[1]}", command = lambda: controller.showFrame(One))
         self.button1.grid(row=1, column=0, padx=10, pady=10)
@@ -196,9 +195,13 @@ class Home(Frame):
 
         # create a label in case the text in the searchable field isn't found
         # set it to search until the search button is used
-        self.not_found = Label(self, text="Search", bg=self.BG_COLOR, fg=self.LABEL_FG)
+        self.not_found = Label(self, text="Type in an item name or\nscan a barcode to search.", bg=self.BG_COLOR, fg=self.LABEL_FG)
         self.not_found.grid(row=5, column=1, padx=10, pady=10)
         self.not_found.config(font=listbox_font)
+
+        self.update = Button(self, bg=self.BUTTON_BG, fg="black", text="UPDATE SCREEN", command=lambda: self.changeTitle())
+        self.update.grid(row=0, column=2, padx=10, pady=10)
+        self.update.config(font=button_font)
 
         # create a searchable field
         self.field = Entry(self, bg=self.BG_COLOR, fg=self.LABEL_FG)
@@ -208,29 +211,30 @@ class Home(Frame):
     
     # change the titles of all buttons to match shelf titles
     # once the Home Button label is clicked
-    def changeTitle(self, event):
+    def changeTitle(self):
         color = shelf_colors[0]
         self.BG_COLOR = (color_themes[color])[0]
         self.BUTTON_BG = (color_themes[color])[1]
         self.LABEL_FG = (color_themes[color])[2]
         self.TITLE_FG = (color_themes[color])[3]
-        Frame.configure(bg=self.BG_COLOR)
+        Frame.configure(self, bg=self.BG_COLOR)
 
         # change titles and button colors
         self.label.config(text=f"{frames[0]}")
-        self.manage_barcodes.config(text=frames[7], bg=self.BUTTON_BG)
-        self.settings.config(text=frames[8], bg=self.BUTTON_BG)
-        self.button1.config(text=frames[1], bg=self.BUTTON_BG)
-        self.button2.config(text=frames[2], bg=self.BUTTON_BG)
-        self.button3.config(text=frames[3], bg=self.BUTTON_BG)
-        self.button4.config(text=frames[4], bg=self.BUTTON_BG)
-        self.button5.config(text=frames[5], bg=self.BUTTON_BG)
-        self.button6.config(text=frames[6], bg=self.BUTTON_BG)
+        self.manage_barcodes.config(text=f"{frames[7]}", bg=self.BUTTON_BG)
+        self.settings.config(text=f"{frames[8]}", bg=self.BUTTON_BG)
+        self.button1.config(text=f"{frames[1]}", bg=self.BUTTON_BG)
+        self.button2.config(text=f"{frames[2]}", bg=self.BUTTON_BG)
+        self.button3.config(text=f"{frames[3]}", bg=self.BUTTON_BG)
+        self.button4.config(text=f"{frames[4]}", bg=self.BUTTON_BG)
+        self.button5.config(text=f"{frames[5]}", bg=self.BUTTON_BG)
+        self.button6.config(text=f"{frames[6]}", bg=self.BUTTON_BG)
 
         # change other colors
         self.label.config(fg=self.TITLE_FG, bg=self.BG_COLOR)
         self.not_found.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
         self.field.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
+        self.update.config(bg=self.BUTTON_BG)
 
     # search for items in each list
     # the first list that the item is found in will be the list you're taken to
@@ -244,25 +248,25 @@ class Home(Frame):
         if (barcode in barcodes):
             word = barcodes[barcode]
              # exit if the word is quit
-            if (word == "quit"):
+            if (word.lower() == "quit"):
                 app.destroy()
             # check the shelf for each item and clear the field
-            elif (word in shelf_one_items.items):
+            elif (word.lower() in shelf_one_items.items):
                 self.controller.showFrame(One)
                 self.field.delete(0, END)
-            elif (word in shelf_two_items.items):
+            elif (word.lower() in shelf_two_items.items):
                 self.controller.showFrame(Two)
                 self.field.delete(0, END)
-            elif (word in shelf_three_items.items):
+            elif (word.lower() in shelf_three_items.items):
                 self.controller.showFrame(Three)
                 self.field.delete(0, END)
-            elif (word in shelf_four_items.items):
+            elif (word.lower() in shelf_four_items.items):
                 self.controller.showFrame(Four)
                 self.field.delete(0, END)
-            elif (word in shelf_five_items.items):
+            elif (word.lower() in shelf_five_items.items):
                 self.controller.showFrame(Five)
                 self.field.delete(0, END)
-            elif (word in shelf_six_items.items):
+            elif (word.lower() in shelf_six_items.items):
                 self.controller.showFrame(Six)
                 self.field.delete(0, END)
             else:
@@ -272,25 +276,25 @@ class Home(Frame):
         else:
             word = self.field.get()
             # exit if the word is quit
-            if (word == "quit"):
+            if (word.lower() == "quit"):
                 app.destroy()
             # check the shelf for each item and clear the field
-            elif (word in shelf_one_items.items):
+            elif (word.lower() in shelf_one_items.items):
                 self.controller.showFrame(One)
                 self.field.delete(0, END)
-            elif (word in shelf_two_items.items):
+            elif (word.lower() in shelf_two_items.items):
                 self.controller.showFrame(Two)
                 self.field.delete(0, END)
-            elif (word in shelf_three_items.items):
+            elif (word.lower() in shelf_three_items.items):
                 self.controller.showFrame(Three)
                 self.field.delete(0, END)
-            elif (word in shelf_four_items.items):
+            elif (word.lower() in shelf_four_items.items):
                 self.controller.showFrame(Four)
                 self.field.delete(0, END)
-            elif (word in shelf_five_items.items):
+            elif (word.lower() in shelf_five_items.items):
                 self.controller.showFrame(Five)
                 self.field.delete(0, END)
-            elif (word in shelf_six_items.items):
+            elif (word.lower() in shelf_six_items.items):
                 self.controller.showFrame(Six)
                 self.field.delete(0, END)
             else:
@@ -357,7 +361,11 @@ class One(Frame):
         self.move_to_shelf.grid(row=4, column=0, padx=10, pady=10)
         self.move_to_shelf.config(font=button_font)
 
-    def changeTitle(self, event):
+        self.update = Button(self, bg=self.BUTTON_BG, fg="black", text="UPDATE SCREEN", command=lambda: self.changeTitle())
+        self.update.grid(row=0, column=1, padx=10, pady=10)
+        self.update.config(font=button_font)
+
+    def changeTitle(self):
         new_name = frames[1]
         self.title.config(text=new_name)
         color = shelf_colors[1]
@@ -374,6 +382,7 @@ class One(Frame):
         self.grab.config(bg=self.BUTTON_BG)
         self.move_to_shelf.config(bg=self.BUTTON_BG)
         self.add_label.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
+        self.update.config(bg=self.BUTTON_BG)
 
     def goToShelfOne(self):
         print ("Arrived at Shelf One.")
@@ -400,8 +409,7 @@ class Two(Frame):
         self.title = Label(self, bg=self.BG_COLOR, fg=self.TITLE_FG, text=f"{frames[2]}")
         self.title.grid(row=0, column=0, padx=10, pady=10)
         self.title.config(font=self.title_font)
-        self.title.bind("<Button-1>", lambda event: self.changeTitle(event))
-
+        
         self.home = Button(self, bg=self.BUTTON_BG, fg="black", text=f"{frames[0]}", command = lambda: controller.showFrame(Home))
         self.home.grid(row=1, column=0, padx=10, pady=10)
         self.home.config(font=button_font)
@@ -438,7 +446,11 @@ class Two(Frame):
         self.move_to_shelf.grid(row=4, column=0, padx=10, pady=10)
         self.move_to_shelf.config(font=button_font)
 
-    def changeTitle(self, event):
+        self.update = Button(self, bg=self.BUTTON_BG, fg="black", text="UPDATE SCREEN", command=lambda: self.changeTitle())
+        self.update.grid(row=0, column=2, padx=10, pady=10)
+        self.update.config(font=button_font)
+
+    def changeTitle(self):
         new_name = frames[2]
         self.title.config(text=new_name)
         color = shelf_colors[2]
@@ -455,6 +467,7 @@ class Two(Frame):
         self.grab.config(bg=self.BUTTON_BG)
         self.move_to_shelf.config(bg=self.BUTTON_BG)
         self.add_label.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
+        self.update.config(bg=self.BUTTON_BG)
 
     def goToShelfTwo(self):
         print ("Arrived at Shelf Two.")
@@ -481,8 +494,7 @@ class Three(Frame):
         self.title = Label(self, bg=self.BG_COLOR, fg=self.TITLE_FG, text=f"{frames[3]}")
         self.title.grid(row=0, column=0, padx=10, pady=10)
         self.title.config(font=self.title_font)
-        self.title.bind("<Button-1>", lambda event: self.changeTitle(event))
-
+        
         self.home = Button(self, bg=self.BUTTON_BG, fg="black", text=f"{frames[0]}", command = lambda: controller.showFrame(Home))
         self.home.grid(row=1, column=0, padx=10, pady=10)
         self.home.config(font=button_font)
@@ -519,7 +531,11 @@ class Three(Frame):
         self.move_to_shelf.grid(row=4, column=0, padx=10, pady=10)
         self.move_to_shelf.config(font=button_font)
 
-    def changeTitle(self, event):
+        self.update = Button(self, bg=self.BUTTON_BG, fg="black", text="UPDATE SCREEN", command=lambda: self.changeTitle())
+        self.update.grid(row=0, column=2, padx=10, pady=10)
+        self.update.config(font=button_font)
+
+    def changeTitle(self):
         new_name = frames[3]
         self.title.config(text=new_name)
         color = shelf_colors[3]
@@ -536,6 +552,7 @@ class Three(Frame):
         self.grab.config(bg=self.BUTTON_BG)
         self.move_to_shelf.config(bg=self.BUTTON_BG)
         self.add_label.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
+        self.update.config(bg=self.BUTTON_BG)
 
     def goToShelfThree(self):
         print ("Arrived at Shelf Three.")
@@ -562,8 +579,7 @@ class Four(Frame):
         self.title = Label(self, bg=self.BG_COLOR, fg=self.TITLE_FG, text=f"{frames[4]}")
         self.title.grid(row=0, column=0, padx=10, pady=10)
         self.title.config(font=self.title_font)
-        self.title.bind("<Button-1>", lambda event: self.changeTitle(event))
-
+        
         self.home = Button(self, bg=self.BUTTON_BG, fg="black", text=f"{frames[0]}", command = lambda: controller.showFrame(Home))
         self.home.grid(row=1, column=0, padx=10, pady=10)
         self.home.config(font=button_font)
@@ -600,7 +616,11 @@ class Four(Frame):
         self.move_to_shelf.grid(row=4, column=0, padx=10, pady=10)
         self.move_to_shelf.config(font=button_font)
 
-    def changeTitle(self, event):
+        self.update = Button(self, bg=self.BUTTON_BG, fg="black", text="UPDATE SCREEN", command=lambda: self.changeTitle())
+        self.update.grid(row=0, column=2, padx=10, pady=10)
+        self.update.config(font=button_font)
+
+    def changeTitle(self):
         new_name = frames[4]
         self.title.config(text=new_name)
         color = shelf_colors[4]
@@ -617,6 +637,7 @@ class Four(Frame):
         self.grab.config(bg=self.BUTTON_BG)
         self.move_to_shelf.config(bg=self.BUTTON_BG)
         self.add_label.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
+        self.update.config(bg=self.BUTTON_BG)
 
     def goToShelfFour(self):
         print ("Arrived at Shelf Four.")
@@ -643,8 +664,7 @@ class Five(Frame):
         self.title = Label(self, bg=self.BG_COLOR, fg=self.TITLE_FG, text=f"{frames[5]}")
         self.title.grid(row=0, column=0, padx=10, pady=10)
         self.title.config(font=self.title_font)
-        self.title.bind("<Button-1>", lambda event: self.changeTitle(event))
-
+        
         self.add_label = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG, text="add item")
         self.add_label.grid(row=1, column=1, padx=10, pady=10)
         self.add_label.config(font=button_font)
@@ -681,7 +701,11 @@ class Five(Frame):
         self.move_to_shelf.grid(row=4, column=0, padx=10, pady=10)
         self.move_to_shelf.config(font=button_font)
 
-    def changeTitle(self, event):
+        self.update = Button(self, bg=self.BUTTON_BG, fg="black", text="UPDATE SCREEN", command=lambda: self.changeTitle())
+        self.update.grid(row=0, column=2, padx=10, pady=10)
+        self.update.config(font=button_font)
+
+    def changeTitle(self):
         new_name = frames[5]
         self.title.config(text=new_name)
         color = shelf_colors[5]
@@ -698,6 +722,7 @@ class Five(Frame):
         self.grab.config(bg=self.BUTTON_BG)
         self.move_to_shelf.config(bg=self.BUTTON_BG)
         self.add_label.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
+        self.update.config(bg=self.BUTTON_BG)
 
     def goToShelfFive(self):
         print ("Arrived at Shelf Five.")
@@ -724,8 +749,7 @@ class Six(Frame):
         self.title = Label(self, bg=self.BG_COLOR, fg=self.TITLE_FG, text=f"{frames[6]}")
         self.title.grid(row=0, column=0, padx=10, pady=10)
         self.title.config(font=self.title_font)
-        self.title.bind("<Button-1>", lambda event: self.changeTitle(event))
-
+        
         self.add_label = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG, text="add item")
         self.add_label.grid(row=1, column=1, padx=10, pady=10)
         self.add_label.config(font=button_font)
@@ -762,7 +786,11 @@ class Six(Frame):
         self.move_to_shelf.grid(row=4, column=0, padx=10, pady=10)
         self.move_to_shelf.config(font=button_font)
 
-    def changeTitle(self, event):
+        self.update = Button(self, bg=self.BUTTON_BG, fg="black", text="UPDATE SCREEN", command=lambda: self.changeTitle())
+        self.update.grid(row=0, column=2, padx=10, pady=10)
+        self.update.config(font=button_font)
+
+    def changeTitle(self):
         new_name = frames[6]
         self.title.config(text=new_name)
         color = shelf_colors[6]
@@ -779,6 +807,7 @@ class Six(Frame):
         self.grab.config(bg=self.BUTTON_BG)
         self.move_to_shelf.config(bg=self.BUTTON_BG)
         self.add_label.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
+        self.update.config(bg=self.BUTTON_BG)
 
     def goToShelfSix(self):
         print ("Arrived at Shelf Six.")
@@ -805,8 +834,7 @@ class ManageBarcodes(Frame):
         self.title = Label(self, text=f"{frames[7]}", bg=self.BG_COLOR, fg=self.TITLE_FG)
         self.title.grid(row=0, column=0, padx=10, pady=10)
         self.title.config(font=self.title_font)
-        self.title.bind("<Button-1>", lambda event: self.changeColor(event))
-
+        
         self.home = Button(self, text=f"{frames[0]}", bg=self.BUTTON_BG, fg="black", command = lambda: controller.showFrame(Home))
         self.home.grid(row=1, column=0, padx=10, pady=10)
         self.home.config(font=button_font)
@@ -859,13 +887,17 @@ class ManageBarcodes(Frame):
         self.double_barcode.grid(row=5, column=0, padx=10, pady=10)
         self.double_barcode.config(font=listbox_font)
 
-    def changeColor(self, event):
+        self.update = Button(self, bg=self.BUTTON_BG, fg="black", text="UPDATE SCREEN", command=lambda: self.changeTitle())
+        self.update.grid(row=0, column=2, padx=10, pady=10)
+        self.update.config(font=button_font)
+
+    def changeColor(self):
         color = shelf_colors[7]
         self.BG_COLOR = (color_themes[color])[0]
         self.BUTTON_BG = (color_themes[color])[1]
         self.LABEL_FG = (color_themes[color])[2]
         self.TITLE_FG = (color_themes[color])[3]
-        Frame.configure(bg=self.BG_COLOR)
+        Frame.configure(self, bg=self.BG_COLOR)
         self.title.config(bg=self.BG_COLOR, fg=self.TITLE_FG, text=f"{frames[7]}")
         self.home.config(bg=self.BUTTON_BG, text=f"{frames[0]}")
         self.items_label.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
@@ -877,6 +909,7 @@ class ManageBarcodes(Frame):
         self.name_label.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
         self.button.config(bg=self.BUTTON_BG)
         self.double_barcode.config(bg=self.BG_COLOR)
+        self.update.config(bg=self.button)
 
     def getItemName(self, entry):
         self.new_item = entry.get()
@@ -896,7 +929,7 @@ class ManageBarcodes(Frame):
             self.scan.grid_forget()
             self.field.grid_forget()
             if (self.new_item is not None):
-                barcodes[barcode] = self.new_item
+                barcodes[barcode] = self.new_item.lower()
             listbox.delete(0, END)
             count = 0
             for barcode in barcodes:
@@ -952,8 +985,7 @@ class Settings(Frame):
         self.title = Label(self, text=f"{frames[8]}", bg=self.BG_COLOR, fg=self.TITLE_FG)
         self.title.grid(row=0, column=0, padx=10, pady=10)
         self.title.config(font=self.title_font)
-        self.title.bind("<Button-1>", lambda event: self.changeColor(event))
-
+        
         self.home = Button(self, text=f"{frames[0]}", bg=self.BUTTON_BG, fg="black", command = lambda: controller.showFrame(Home))
         self.home.grid(row=1, column=0, padx=10, pady=10)
         self.home.config(font=button_font)
@@ -1004,13 +1036,17 @@ class Settings(Frame):
 
         self.current_shelf = frames[0]
 
+        self.update = Button(self, bg=self.BUTTON_BG, fg="black", text="UPDATE SCREEN", command=lambda: self.changeTitle())
+        self.update.grid(row=0, column=2, padx=10, pady=10)
+        self.update.config(font=button_font)
+
     def changeColor(self, event):
         color = shelf_colors[8]
         self.BG_COLOR = (color_themes[color])[0]
         self.BUTTON_BG = (color_themes[color])[1]
         self.LABEL_FG = (color_themes[color])[2]
         self.TITLE_FG = (color_themes[color])[3]
-        Frame.configure(bg=self.BG_COLOR)
+        Frame.configure(self, bg=self.BG_COLOR)
         self.title.config(text=f"{frames[8]}", bg=self.BG_COLOR, fg=self.TITLE_FG)
         self.home.config(text=f"{frames[0]}", bg=self.BUTTON_BG)
         self.shelf_names.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
@@ -1023,6 +1059,7 @@ class Settings(Frame):
         self.select_shelf.config(bg=self.BUTTON_BG)
         self.select_color.config(bg=self.BUTTON_BG)
         self.edit_field.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
+        self.update.config(bg=self.BUTTON_BG)
 
     def editName(self):
         self.edit_label.config(text="What would you like\nto name this shelf?")
