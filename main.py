@@ -1,6 +1,5 @@
 from tkinter import *
 import pickle
-from winreg import ExpandEnvironmentStrings
 
 # set all available color themes in a dictionary
 color_themes = { "red": ["#ffe3e3", "#ffbfbf", "#850000", "#ff0000"], 
@@ -493,7 +492,7 @@ class Three(Frame):
         self.items_label.config(font=button_font)
 
         self.items = Listbox(self, fg=self.LABEL_FG)
-        self.items.grid(row=1, column=5, rowspan=4, columnspan=2, padx=10, pady=10)
+        self.items.grid(row=1, column=2, rowspan=3, columnspan=2, padx=10, pady=10)
         for i in range(len(shelf_three_items.items)):
             self.items.insert(i + 1, shelf_three_items.items[i])
         self.items.config(font=listbox_font)
@@ -1034,18 +1033,24 @@ class Settings(Frame):
         self.select_shelf.grid(row=4, column=0, padx=10, pady=10)
 
     def selectShelf(self):
-        self.current_shelf = self.shelf_scroll.get(self.shelf_scroll.curselection())
-        self.edit_label.config(text=f"What color would you\nlike to make {self.current_shelf}?")
-        self.select_shelf.grid_forget()
-        self.select_color.grid(row=4, column=0, padx=10, pady=10)
+        try:
+            self.current_shelf = self.shelf_scroll.get(self.shelf_scroll.curselection())
+            self.edit_label.config(text=f"What color would you\nlike to make {self.current_shelf}?")
+            self.select_shelf.grid_forget()
+            self.select_color.grid(row=4, column=0, padx=10, pady=10)
+        except TclError:
+            self.edit_label.config(text="Select a shelf and try again.")
         
     def selectColor(self):
-        color = self.colors_box.get(self.colors_box.curselection())
-        index = frames.index(self.current_shelf)
-        del shelf_colors[index]
-        shelf_colors.insert(index, color)
-        self.select_color.grid_forget()
-        self.edit_label.config(text="")
+        try:
+            color = self.colors_box.get(self.colors_box.curselection())
+            index = frames.index(self.current_shelf)
+            del shelf_colors[index]
+            shelf_colors.insert(index, color)
+            self.select_color.grid_forget()
+            self.edit_label.config(text="")
+        except TclError:
+            self.edit_label.config(text="Select a color and try again.")
 
     def changeTitle(self, event):
         new_name = self.edit_field.get()
