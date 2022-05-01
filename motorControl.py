@@ -16,12 +16,12 @@ class Motor:
 				sleep(0.01)
 			while (currShelf != targetShelf):
 				sensor.trackShelf() # Placeholder
-			while (sensor.getDistance() > finDist):
-				duty = (100/10) * (sensor.getDistance - finDist)
-				if (duty > 0):
-					pi_pwm.ChangeDutyCycle(duty)
-				elif (sensor.getDistance() <= finDist):
-					pi_pwm.ChangeDutyCycle(0)
+			for duty in range(100, -1, -1):
+				pi_pwm.ChangeDutyCycle(duty)
+				if (sensor.getDistance() <= finDist):
+					GPIO.output(DIR_PIN_1, False)
+					GPIO.output(DIR_PIN_2, False)
+				sleep(0.01)
 			GPIO.output(DIR_PIN_1, False)
 			GPIO.output(DIR_PIN_2, False)
 			
@@ -73,13 +73,14 @@ class UltraSonic:
 		return distance
 	
 	def trackShelf(self):
+		global currShelf
 		distance = sensor.getDistance() * correctionFactor
 		distance = round(distance, 4)
 		difference = distance - sensor.previousMeasurement
-		if (difference > 2):
+		if (difference > 5):
 			currShelf += 1
 		sensor.previousMeasurement = distance
-		print(currShelf)
+		print(distance)
 
 ########
 # Main #
