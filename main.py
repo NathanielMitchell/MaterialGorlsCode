@@ -1,5 +1,92 @@
 from tkinter import *
 import pickle
+import RPi.GPIO as GPIO
+from time import sleep, time
+
+class Motor:
+	def __init__(self):
+		self.pwmFreq = 1000
+	def shelfCall(self, targetShelf):
+		if (targetShelf != current_shelf):
+			GPIO.output(DIR_PIN_1, True)
+			GPIO.output(DIR_PIN_2, False)
+			for duty in range (0, 101):
+				pi_pwm.ChangeDutyCycle(duty)
+				sensor.trackShelf()
+				sleep(0.01)
+			while (current_shelf != targetShelf):
+				sensor.trackShelf() # Placeholder
+			for duty in range(100, -1, -1):
+				pi_pwm.ChangeDutyCycle(duty)
+				if (sensor.getDistance() <= finDist):
+					GPIO.output(DIR_PIN_1, False)
+					GPIO.output(DIR_PIN_2, False)
+				sleep(0.01)
+			GPIO.output(DIR_PIN_1, False)
+			GPIO.output(DIR_PIN_2, False)
+
+# class to initialize and calibrate the ultrasonic sensor
+class UltraSonic:
+	def __init__(self):
+		self.calibrationDistance = 10
+		# the previous measurement is used for determining if a shelf has gone by
+		self.previousMeasurement = self.calibrationDistance
+
+        # Calibrates the sensor for proper distance measurments
+	def calibrate(self):
+		print("Calibrating...")
+		print("Place the sensor a known distance away from am object")
+		knownDistance = self.calibrationDistance
+		print("Getting calibration measurements")
+		print("Done.")
+		distanceAverage = 0
+		
+		# Compares known distance to average calibration distances
+		# Creates a calibration constant based on this comparison
+		for i in range(CALIBRATIONS):
+			distance = self.getDistance()
+			distanceAverage += distance
+			sleep(CALIBRATION_DELAY)
+			
+		distanceAverage /= CALIBRATIONS
+		
+		print(f"Average distance is {distanceAverage}")
+		
+		correctionFactor = knownDistance / distanceAverage
+		
+		print(f"Correction factor is {correctionFactor}")
+		print("")
+		
+		return(correctionFactor)
+		
+	# Finds the distance from the US sensor in cm
+	def getDistance(self):
+
+		GPIO.output(TRIG, GPIO.HIGH)
+		sleep(TRIGGER_TIME)
+		GPIO.output(TRIG, GPIO.LOW)
+		
+		while (GPIO.input(ECHO) == GPIO.LOW):
+			start = time()
+		while (GPIO.input(ECHO) == GPIO.HIGH):
+			end = time()
+			
+		duration = end - start
+		
+		distance = duration * SPEED_OF_SOUND
+		
+		distance /= 2
+		distance *= 100
+		
+		return distance
+	
+	def trackShelf(self):
+		distance = sensor.getDistance() * correctionFactor
+		distance = round(distance, 4)
+		difference = distance - sensor.previousMeasurement
+		if (difference > 2):
+			"ShelfNumber++"
+		sensor.previousMeasurement = distance
 
 # set all available color themes in a dictionary
 color_themes = { "red": ["#ffe3e3", "#ffbfbf", "#850000", "#ff0000"], 
@@ -40,6 +127,13 @@ try:
 except FileNotFoundError:
     frames = ["Home Page", "Shelf One", "Shelf Two", "Shelf Three", "Shelf Four", "Shelf Five", "Shelf Six", "Manage Barcodes", "Settings"]
 
+
+# initialize the current shelf
+try:
+    with open ("current_shelf.pickle", "rb") as f:
+        current_shelf = pickle.load(f)
+except FileNotFoundError:
+    current_shelf = frames[1]
 
 # controls the framework and allows for switching between frames
 class ShelfApp(Tk):
@@ -224,6 +318,11 @@ class Home(Frame):
         self.shelf_instructions.grid(row=0, rowspan=2, column=3, padx=10, pady=10)
         self.shelf_instructions.config(font=listbox_font)
 
+        # label to show current shelf
+        self.cur_shelf = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG, text=f"Current Shelf: {current_shelf}")
+        self.cur_shelf.grid(row=0, column=3, padx=10, pady=10)
+        self.cur_shelf.config(font=button_font)
+
         self.instructions = Button(self, bg=self.BUTTON_BG, fg="black", command=lambda: self.hideInstructions())
         self.instructions.grid(row=2, column=3, padx=10, pady=10)
         if (instructions[0]):
@@ -286,6 +385,7 @@ class Home(Frame):
         self.not_found.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
         self.field.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
         self.update.config(bg=self.BUTTON_BG)
+        self.cur_shelf.config(bg=self.BG_COLOR, fg=self.LABEL_FG, text=f"Current Shelf: {current_shelf}")
 
     # search for items in each list
     # the first list that the item is found in will be the list you're taken to
@@ -440,9 +540,15 @@ class One(Frame):
         self.update_label.grid(row=6, column=1, padx=10, pady=10)
         self.update_label.config(font=listbox_font)
 
+        # label to explain error in removing items if it occurs
         self.remove_error = Label(self, bg=self.BG_COLOR, fg="red")
         self.remove_error.grid(row=1, column=3, padx=10, pady=10, rowspan=2)
         self.remove_error.config(font=listbox_font)
+
+        # label to show current shelf
+        self.cur_shelf = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG, text=f"Current Shelf: {current_shelf}")
+        self.cur_shelf.grid(row=0, column=3, padx=10, pady=10)
+        self.cur_shelf.config(font=button_font)
 
         # button to show or hide insturctions
         self.instructions = Button(self, bg=self.BUTTON_BG, fg="black", command = lambda: self.changeInstructions())
@@ -497,10 +603,11 @@ class One(Frame):
         self.update_label.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
         self.instructions.config(bg=self.BUTTON_BG)
         self.remove_error.config(bg=self.BG_COLOR)
+        self.cur_shelf.config(text=f"Current Shelf: {current_shelf}", bg=self.BG_COLOR, fg=self.LABEL_FG)
 
     # code to move to shelf one
     def goToShelfOne(self):
-        print ("Arrived at Shelf One.")
+        motor.shelfCall(frames[1])
 
 class Two(Frame):
     def __init__(self, parent, controller):
@@ -588,9 +695,15 @@ class Two(Frame):
         self.remove_label.grid(row=6, column=2, padx=10, pady=10)
         self.remove_label.config(font=listbox_font)
 
+        # label to describe an error in removing items from the shelf
         self.remove_error = Label(self, bg=self.BG_COLOR, fg="red")
         self.remove_error.grid(row=1, column=3, padx=10, pady=10, rowspan=2)
         self.remove_error.config(font=listbox_font)
+
+        # label to show current shelf
+        self.cur_shelf = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG, text=f"Current Shelf: {current_shelf}")
+        self.cur_shelf.grid(row=0, column=3, padx=10, pady=10)
+        self.cur_shelf.config(font=button_font)
 
         # button to show or hide insturctions
         self.instructions = Button(self, bg=self.BUTTON_BG, fg="black", command = lambda: self.changeInstructions())
@@ -645,10 +758,11 @@ class Two(Frame):
         self.update_label.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
         self.instructions.config(bg=self.BUTTON_BG)
         self.remove_error.config(bg=self.BG_COLOR)
+        self.cur_shelf.config(text=f"Current Shelf: {current_shelf}", bg=self.BG_COLOR, fg=self.LABEL_FG)
 
     # moves the shelf to this shelf
     def goToShelfTwo(self):
-        print ("Arrived at Shelf Two.")
+        motor.shelfCall(frames[2])
 
 class Three(Frame):
     def __init__(self, parent, controller):
@@ -723,7 +837,7 @@ class Three(Frame):
         self.update.grid(row=5, column=1, padx=10, pady=10)
         self.update.config(font=button_font)
 
-    # label for the entry field that adds items to the shelf
+        # label for the entry field that adds items to the shelf
         self.add_label = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG, text="")
         self.add_label.grid(row=1, column=1, padx=10, pady=10)
         self.add_label.config(font=listbox_font)
@@ -741,6 +855,11 @@ class Three(Frame):
         self.remove_error = Label(self, bg=self.BG_COLOR, fg="red")
         self.remove_error.grid(row=1, column=3, padx=10, pady=10, rowspan=2)
         self.remove_error.config(font=listbox_font)
+
+        # label to show current shelf
+        self.cur_shelf = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG, text=f"Current Shelf: {current_shelf}")
+        self.cur_shelf.grid(row=0, column=3, padx=10, pady=10)
+        self.cur_shelf.config(font=button_font)
 
         # button to show or hide insturctions
         self.instructions = Button(self, bg=self.BUTTON_BG, fg="black", command = lambda: self.changeInstructions())
@@ -796,11 +915,12 @@ class Three(Frame):
         self.update_label.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
         self.instructions.config(bg=self.BUTTON_BG)
         self.remove_error.config(bg=self.BG_COLOR)
+        self.cur_shelf.config(text=f"Current Shelf: {current_shelf}", bg=self.BG_COLOR, fg=self.LABEL_FG)
 
     # function to rotate the shelves to the third shelf
     # triggers when the mvoe to shelf button is activated
     def goToShelfThree(self):
-        print ("Arrived at Shelf Three.")
+        motor.shelfCall(frames[3])
 
 class Four(Frame):
     def __init__(self, parent, controller):
@@ -884,6 +1004,11 @@ class Four(Frame):
         self.remove_error.grid(row=1, column=3, padx=10, pady=10, rowspan=2)
         self.remove_error.config(font=listbox_font)
 
+        # label to show current shelf
+        self.cur_shelf = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG, text=f"Current Shelf: {current_shelf}")
+        self.cur_shelf.grid(row=0, column=3, padx=10, pady=10)
+        self.cur_shelf.config(font=button_font)
+
         # button to show or hide insturctions
         self.instructions = Button(self, bg=self.BUTTON_BG, fg="black", command = lambda: self.changeInstructions())
         self.instructions.grid(row=5, column=0, padx=10, pady=10)
@@ -936,9 +1061,10 @@ class Four(Frame):
         self.update_label.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
         self.instructions.config(bg=self.BUTTON_BG)
         self.remove_error.config(bg=self.BG_COLOR)
+        self.cur_shelf.config(text=f"Current Shelf: {current_shelf}", bg=self.BG_COLOR, fg=self.LABEL_FG)
 
     def goToShelfFour(self):
-        print ("Arrived at Shelf Four.")
+        motor.shelfCall(frames[4])
 
 class Five(Frame):
     def __init__(self, parent, controller):
@@ -1022,6 +1148,11 @@ class Five(Frame):
         self.remove_error.grid(row=1, column=3, padx=10, pady=10, rowspan=2)
         self.remove_error.config(font=listbox_font)
 
+        # label to show current shelf
+        self.cur_shelf = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG, text=f"Current Shelf: {current_shelf}")
+        self.cur_shelf.grid(row=0, column=3, padx=10, pady=10)
+        self.cur_shelf.config(font=button_font)
+
         # button to show or hide insturctions
         self.instructions = Button(self, bg=self.BUTTON_BG, fg="black", command = lambda: self.changeInstructions())
         self.instructions.grid(row=5, column=0, padx=10, pady=10)
@@ -1075,9 +1206,10 @@ class Five(Frame):
         self.update_label.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
         self.instructions.config(bg=self.BUTTON_BG)
         self.remove_error.config(bg=self.BG_COLOR)
+        self.cur_shelf.config(bg=self.BG_COLOR, fg=self.LABEL_FG, text=f"Current Shelf: {current_shelf}")
 
     def goToShelfFive(self):
-        print ("Arrived at Shelf Five.")
+        motor.shelfCall(frames[5])
 
 class Six(Frame):
     def __init__(self, parent, controller):
@@ -1161,6 +1293,11 @@ class Six(Frame):
         self.remove_error.grid(row=1, column=3, padx=10, pady=10, rowspan=2)
         self.remove_error.config(font=listbox_font)
 
+        # label to show current shelf
+        self.cur_shelf = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG, text=f"Current Shelf: {current_shelf}")
+        self.cur_shelf.grid(row=0, column=3, padx=10, pady=10)
+        self.cur_shelf.config(font=button_font)
+
         # button to show or hide insturctions
         self.instructions = Button(self, bg=self.BUTTON_BG, fg="black", command = lambda: self.changeInstructions())
         self.instructions.grid(row=5, column=0, padx=10, pady=10)
@@ -1213,9 +1350,10 @@ class Six(Frame):
         self.update_label.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
         self.instructions.config(bg=self.BUTTON_BG)
         self.remove_error.config(bg=self.BG_COLOR)
+        self.cur_shelf.config(bg=self.BG_COLOR, fg=self.LABEL_FG, text=f"Current Shelf: {current_shelf}")
 
     def goToShelfSix(self):
-        print ("Arrived at Shelf Six.")
+        motor.shelfCall(frames[6])
 
 class ManageBarcodes(Frame):
     def __init__(self, parent, controller):
@@ -1308,6 +1446,11 @@ class ManageBarcodes(Frame):
         self.remove_error.grid(row=1, column=3, rowspan=3, padx=10, pady=10)
         self.remove_error.config(font=listbox_font)
 
+        # label to show current shelf
+        self.cur_shelf = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG, text=f"Current Shelf: {current_shelf}")
+        self.cur_shelf.grid(row=0, column=3, padx=10, pady=10)
+        self.cur_shelf.config(font=button_font)
+
         self.instructions = Button(self, bg=self.BUTTON_BG, fg="black", command=lambda: self.changeInstructions())
         self.instructions.grid(row=7, column=0, padx=10, pady=10)
         if (instructions[7]):
@@ -1360,6 +1503,7 @@ class ManageBarcodes(Frame):
         self.update_label.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
         self.instructions.config(bg=self.BUTTON_BG)
         self.remove_label.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
+        self.cur_shelf.config(bg=self.BG_COLOR, fg=self.LABEL_FG, text=f"Current Shelf: {current_shelf}")
 
     def getItemName(self, entry):
         self.new_item = entry.get()
@@ -1494,6 +1638,11 @@ class Settings(Frame):
         self.update.grid(row=5, column=1, padx=10, pady=10)
         self.update.config(font=button_font)
 
+        # label to show current shelf
+        self.cur_shelf = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG, text=f"Current Shelf: {current_shelf}")
+        self.cur_shelf.grid(row=0, column=3, padx=10, pady=10)
+        self.cur_shelf.config(font=button_font)
+
         self.instructions = Button(self, bg=self.BUTTON_BG, fg="black", command=lambda: self.changeInstructions())
         self.instructions.grid(row=5, column=0, padx=10, pady=10)
         if (instructions[8]):
@@ -1531,6 +1680,7 @@ class Settings(Frame):
         self.select_color.config(bg=self.BUTTON_BG)
         self.edit_field.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
         self.update.config(bg=self.BUTTON_BG)
+        self.cur_shelf.config(bg=self.BG_COLOR, fg=self.LABEL_FG, text=f"Current Shelf: {current_shelf}")
 
     def editName(self):
         if (instructions[8]):
@@ -1577,6 +1727,44 @@ class Settings(Frame):
         for i in range(len(frames)):
             self.shelf_scroll.insert(i, frames[i])
 
+# constants
+SETTLE_TIME = 2
+CALIBRATIONS = 5
+
+CALIBRATION_DELAY = 1
+
+TRIGGER_TIME = 0.00001
+
+SPEED_OF_SOUND = 343
+
+# pin sets
+GPIO.setmode(GPIO.BCM)
+
+# pins
+TRIG = 12
+ECHO = 20
+MOTOR_SIGNAL = 27
+DIR_PIN_1 = 26
+DIR_PIN_2 = 25
+
+# pin setups
+GPIO.setup(TRIG, GPIO.OUT)
+GPIO.setup(ECHO, GPIO.IN)
+GPIO.setwarnings(False)			#disable warnings
+GPIO.setup(MOTOR_SIGNAL,GPIO.OUT)
+GPIO.setup(DIR_PIN_1, GPIO.OUT, initial = GPIO.LOW)
+GPIO.setup(DIR_PIN_2, GPIO.OUT, initial = GPIO.LOW)
+
+sensor = UltraSonic()
+correctionFactor = sensor.calibrate()
+motor = Motor()
+pi_pwm = GPIO.PWM(MOTOR_SIGNAL, 1000)		#create PWM instance with frequency
+pi_pwm.start(0)				#start PWM of required Duty Cycle 
+
+finDist = sensor.calibrationDistance
+
+sensor.calibrate()
+
 app = ShelfApp()
 app.title("The Shelfinator")
 # app.attributes("-fullscreen", True)
@@ -1601,5 +1789,7 @@ with open("shelf_colors.pickle", "wb") as f:
     pickle.dump(shelf_colors, f)
 with open("instructions.pickle", "wb") as f:
     pickle.dump(instructions, f)
+with open("current_shelf.pickle", "wb") as f:
+    pickle.dump(current_shelf, f)
 # =======
 
