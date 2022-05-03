@@ -106,16 +106,20 @@ class ItemList():
         entry.delete(0, END)
 
     # remove an item from the list on the shelf object
-    def removeItem(self, listbox):
-        # pull the text from the entry field
-        item = listbox.get(listbox.curselection()[0])
-        # remove the text from the list of items
-        self.items.remove(item)
-        # clear everything out the list box
-        listbox.delete(0, END)
-        # reset the list box
-        for i in range(len(self.items)):
-            listbox.insert(i + 1, self.items[i])
+    def removeItem(self, listbox, label):
+        try: 
+            # pull the text from the entry field
+            item = listbox.get(listbox.curselection()[0])
+            # remove the text from the list of items
+            self.items.remove(item)
+            # clear everything out the list box
+            listbox.delete(0, END)
+            # reset the list box
+            for i in range(len(self.items)):
+                listbox.insert(i + 1, self.items[i])
+            label.config(text="")
+        except IndexError:
+            label.config(text="Select an item from\nthe list and try again.")
 
 # if the pickles from previous sessions exist,
 # open them and store them as the shelf objects
@@ -387,7 +391,7 @@ class One(Frame):
 
         # listbox of items on the shelf
         self.items = Listbox(self, fg=self.LABEL_FG)
-        self.items.grid(row=1, rowspan=4, column=2, columnspan=2, padx=10, pady=10)
+        self.items.grid(row=1, rowspan=4, column=2, padx=10, pady=10)
         # iterates through the list of items on shelf one
         # to put all items into the listbox
         for i in range(len(shelf_one_items.items)):
@@ -411,13 +415,13 @@ class One(Frame):
         self.field.bind("<Return>", lambda event: shelf_one_items.addItem(event, self.field, self.items))
 
         # button to remove an item from a shelf
-        self.grab = Button(self, bg=self.BUTTON_BG, fg="black", text="REMOVE", command = lambda: shelf_one_items.removeItem(self.items))
+        self.grab = Button(self, bg=self.BUTTON_BG, fg="black", text="REMOVE", command = lambda: shelf_one_items.removeItem(self.items, self.remove_error))
         self.grab.grid(row=5, column=2, padx=10, pady=10)
         self.grab.config(font=button_font)
 
         # adds a scrollbar to the listbox of items on the shelf
         scroll = Scrollbar(self)
-        scroll.grid(row=1, column=3)
+        scroll.grid(row=1, column=2)
         self.items.config(yscrollcommand=scroll.set)
         scroll.config(command=self.items.yview)
 
@@ -435,6 +439,10 @@ class One(Frame):
         self.update_label = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG)
         self.update_label.grid(row=6, column=1, padx=10, pady=10)
         self.update_label.config(font=listbox_font)
+
+        self.remove_error = Label(self, bg=self.BG_COLOR, fg="red")
+        self.remove_error.grid(row=1, column=3, padx=10, pady=10, rowspan=2)
+        self.remove_error.config(font=listbox_font)
 
         # button to show or hide insturctions
         self.instructions = Button(self, bg=self.BUTTON_BG, fg="black", command = lambda: self.changeInstructions())
@@ -488,6 +496,7 @@ class One(Frame):
         self.remove_label.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
         self.update_label.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
         self.instructions.config(bg=self.BUTTON_BG)
+        self.remove_error.config(bg=self.BG_COLOR)
 
     # code to move to shelf one
     def goToShelfOne(self):
@@ -529,7 +538,7 @@ class Two(Frame):
 
         # listbox that stores all items currently on the shelf
         self.items = Listbox(self, fg=self.LABEL_FG)
-        self.items.grid(row=1, column=2, rowspan=4, columnspan=2, padx=10, pady=10)
+        self.items.grid(row=1, column=2, rowspan=4, padx=10, pady=10)
         for i in range(len(shelf_two_items.items)):
             self.items.insert(i + 1, shelf_two_items.items[i])
         self.items.config(font=listbox_font)
@@ -543,13 +552,13 @@ class Two(Frame):
 
         # button to remove an item from the shelf ( an item must be
         # selected in the listbox for this to function properly)
-        self.grab = Button(self, bg=self.BUTTON_BG, fg="black", text="REMOVE", command = lambda: shelf_two_items.removeItem(self.items))
+        self.grab = Button(self, bg=self.BUTTON_BG, fg="black", text="REMOVE", command = lambda: shelf_two_items.removeItem(self.items, self.remove_error))
         self.grab.grid(row=5, column=2, padx=10, pady=10)
         self.grab.config(font=button_font)
 
         # adds a scrollbar to the list of items
         scroll = Scrollbar(self)
-        scroll.grid(row=1, column=3)
+        scroll.grid(row=1, column=2)
         self.items.config(yscrollcommand=scroll.set)
         scroll.config(command=self.items.yview)
 
@@ -578,6 +587,10 @@ class Two(Frame):
         self.remove_label = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG, text="")
         self.remove_label.grid(row=6, column=2, padx=10, pady=10)
         self.remove_label.config(font=listbox_font)
+
+        self.remove_error = Label(self, bg=self.BG_COLOR, fg="red")
+        self.remove_error.grid(row=1, column=3, padx=10, pady=10, rowspan=2)
+        self.remove_error.config(font=listbox_font)
 
         # button to show or hide insturctions
         self.instructions = Button(self, bg=self.BUTTON_BG, fg="black", command = lambda: self.changeInstructions())
@@ -631,6 +644,7 @@ class Two(Frame):
         self.remove_label.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
         self.update_label.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
         self.instructions.config(bg=self.BUTTON_BG)
+        self.remove_error.config(bg=self.BG_COLOR)
 
     # moves the shelf to this shelf
     def goToShelfTwo(self):
@@ -672,7 +686,7 @@ class Three(Frame):
 
         # puts the items on the shelf into the listbox to display
         self.items = Listbox(self, fg=self.LABEL_FG)
-        self.items.grid(row=1, column=2, rowspan=4, columnspan=2, padx=10, pady=10)
+        self.items.grid(row=1, column=2, rowspan=4, padx=10, pady=10)
         for i in range(len(shelf_three_items.items)):
             self.items.insert(i + 1, shelf_three_items.items[i])
         self.items.config(font=listbox_font)
@@ -689,13 +703,13 @@ class Three(Frame):
         self.field.bind("<Return>", lambda event: shelf_three_items.addItem(event, self.field, self.items))
 
         # button to remove items from the shelf when they are selected in the listbox
-        self.grab = Button(self, bg=self.BUTTON_BG, fg="black", text="REMOVE", command = lambda: shelf_three_items.removeItem(self.items))
+        self.grab = Button(self, bg=self.BUTTON_BG, fg="black", text="REMOVE", command = lambda: shelf_three_items.removeItem(self.items, self.remove_error))
         self.grab.grid(row=5, column=2, padx=10, pady=10)
         self.grab.config(font=button_font)
 
         # bar to scroll through the listbox
         scroll = Scrollbar(self)
-        scroll.grid(row=1, column=3)
+        scroll.grid(row=1, column=2)
         self.items.config(yscrollcommand=scroll.set)
         scroll.config(command=self.items.yview)
 
@@ -723,6 +737,10 @@ class Three(Frame):
         self.remove_label = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG, text="")
         self.remove_label.grid(row=6, column=2, padx=10, pady=10)
         self.remove_label.config(font=listbox_font)
+
+        self.remove_error = Label(self, bg=self.BG_COLOR, fg="red")
+        self.remove_error.grid(row=1, column=3, padx=10, pady=10, rowspan=2)
+        self.remove_error.config(font=listbox_font)
 
         # button to show or hide insturctions
         self.instructions = Button(self, bg=self.BUTTON_BG, fg="black", command = lambda: self.changeInstructions())
@@ -777,6 +795,7 @@ class Three(Frame):
         self.remove_label.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
         self.update_label.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
         self.instructions.config(bg=self.BUTTON_BG)
+        self.remove_error.config(bg=self.BG_COLOR)
 
     # function to rotate the shelves to the third shelf
     # triggers when the mvoe to shelf button is activated
@@ -819,7 +838,7 @@ class Four(Frame):
         self.items_label.config(font=button_font)
 
         self.items = Listbox(self, fg=self.LABEL_FG)
-        self.items.grid(row=1, column=2, rowspan=4, columnspan=2, padx=10, pady=10)
+        self.items.grid(row=1, column=2, rowspan=4, padx=10, pady=10)
         for i in range(len(shelf_four_items.items)):
             self.items.insert(i + 1, shelf_four_items.items[i])
         self.items.config(font=listbox_font)
@@ -829,12 +848,12 @@ class Four(Frame):
         self.field.config(font=listbox_font)
         self.field.bind("<Return>", lambda event: shelf_four_items.addItem(event, self.field, self.items))
 
-        self.grab = Button(self, bg=self.BUTTON_BG, fg="black", text="REMOVE", command = lambda: shelf_four_items.removeItem(self.items))
+        self.grab = Button(self, bg=self.BUTTON_BG, fg="black", text="REMOVE", command = lambda: shelf_four_items.removeItem(self.items, self.remove_error))
         self.grab.grid(row=5, column=2, padx=10, pady=10)
         self.grab.config(font=button_font)
 
         scroll = Scrollbar(self)
-        scroll.grid(row=1, column=3)
+        scroll.grid(row=1, column=2)
         self.items.config(yscrollcommand=scroll.set)
         scroll.config(command=self.items.yview)
 
@@ -860,6 +879,10 @@ class Four(Frame):
         self.remove_label = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG, text="")
         self.remove_label.grid(row=6, column=2, padx=10, pady=10)
         self.remove_label.config(font=listbox_font)
+
+        self.remove_error = Label(self, bg=self.BG_COLOR, fg="red")
+        self.remove_error.grid(row=1, column=3, padx=10, pady=10, rowspan=2)
+        self.remove_error.config(font=listbox_font)
 
         # button to show or hide insturctions
         self.instructions = Button(self, bg=self.BUTTON_BG, fg="black", command = lambda: self.changeInstructions())
@@ -912,6 +935,7 @@ class Four(Frame):
         self.remove_label.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
         self.update_label.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
         self.instructions.config(bg=self.BUTTON_BG)
+        self.remove_error.config(bg=self.BG_COLOR)
 
     def goToShelfFour(self):
         print ("Arrived at Shelf Four.")
@@ -952,7 +976,7 @@ class Five(Frame):
         self.items_label.config(font=button_font)
 
         self.items = Listbox(self, fg=self.LABEL_FG)
-        self.items.grid(row=1, column=2, rowspan=4, columnspan=2, padx=10, pady=10)
+        self.items.grid(row=1, column=2, rowspan=4, padx=10, pady=10)
         for i in range(len(shelf_five_items.items)):
             self.items.insert(i + 1, shelf_five_items.items[i])
         self.items.config(font=listbox_font)
@@ -962,12 +986,12 @@ class Five(Frame):
         self.field.config(font=listbox_font)
         self.field.bind("<Return>", lambda event: shelf_five_items.addItem(event, self.field, self.items))
 
-        self.grab = Button(self, bg=self.BUTTON_BG, fg="black", text="REMOVE", command = lambda: shelf_five_items.removeItem(self.items))
+        self.grab = Button(self, bg=self.BUTTON_BG, fg="black", text="REMOVE", command = lambda: shelf_five_items.removeItem(self.items, self.remove_error))
         self.grab.grid(row=5, column=2, padx=10, pady=10)
         self.grab.config(font=button_font)
 
         scroll = Scrollbar(self)
-        scroll.grid(row=1, column=3)
+        scroll.grid(row=1, column=2)
         self.items.config(yscrollcommand=scroll.set)
         scroll.config(command=self.items.yview)
 
@@ -993,6 +1017,10 @@ class Five(Frame):
         self.remove_label = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG, text="")
         self.remove_label.grid(row=6, column=2, padx=10, pady=10)
         self.remove_label.config(font=listbox_font)
+
+        self.remove_error = Label(self, bg=self.BG_COLOR, fg="red")
+        self.remove_error.grid(row=1, column=3, padx=10, pady=10, rowspan=2)
+        self.remove_error.config(font=listbox_font)
 
         # button to show or hide insturctions
         self.instructions = Button(self, bg=self.BUTTON_BG, fg="black", command = lambda: self.changeInstructions())
@@ -1046,6 +1074,7 @@ class Five(Frame):
         self.remove_label.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
         self.update_label.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
         self.instructions.config(bg=self.BUTTON_BG)
+        self.remove_error.config(bg=self.BG_COLOR)
 
     def goToShelfFive(self):
         print ("Arrived at Shelf Five.")
@@ -1086,7 +1115,7 @@ class Six(Frame):
         self.items_label.config(font=button_font)
 
         self.items = Listbox(self, fg=self.LABEL_FG)
-        self.items.grid(row=1, column=2, rowspan=4, columnspan=2, padx=10, pady=10)
+        self.items.grid(row=1, column=2, rowspan=4, padx=10, pady=10)
         for i in range(len(shelf_six_items.items)):
             self.items.insert(i + 1, shelf_six_items.items[i])
         self.items.config(font=listbox_font)
@@ -1096,12 +1125,12 @@ class Six(Frame):
         self.field.config(font=listbox_font)
         self.field.bind("<Return>", lambda event: shelf_six_items.addItem(event, self.field, self.items))
 
-        self.grab = Button(self, fg="black", bg=self.BUTTON_BG, text="REMOVE", command = lambda: shelf_six_items.removeItem(self.items))
+        self.grab = Button(self, fg="black", bg=self.BUTTON_BG, text="REMOVE", command = lambda: shelf_six_items.removeItem(self.items, self.remove_error))
         self.grab.grid(row=5, column=2, padx=10, pady=10)
         self.grab.config(font=button_font)
 
         scroll = Scrollbar(self)
-        scroll.grid(row=1, column=3)
+        scroll.grid(row=1, column=2)
         self.items.config(yscrollcommand=scroll.set)
         scroll.config(command=self.items.yview)
 
@@ -1127,6 +1156,10 @@ class Six(Frame):
         self.remove_label = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG, text="")
         self.remove_label.grid(row=6, column=2, padx=10, pady=10)
         self.remove_label.config(font=listbox_font)
+
+        self.remove_error = Label(self, bg=self.BG_COLOR, fg="red")
+        self.remove_error.grid(row=1, column=3, padx=10, pady=10, rowspan=2)
+        self.remove_error.config(font=listbox_font)
 
         # button to show or hide insturctions
         self.instructions = Button(self, bg=self.BUTTON_BG, fg="black", command = lambda: self.changeInstructions())
@@ -1179,6 +1212,7 @@ class Six(Frame):
         self.remove_label.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
         self.update_label.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
         self.instructions.config(bg=self.BUTTON_BG)
+        self.remove_error.config(bg=self.BG_COLOR)
 
     def goToShelfSix(self):
         print ("Arrived at Shelf Six.")
@@ -1270,6 +1304,10 @@ class ManageBarcodes(Frame):
         self.remove_label.grid(row=6, rowspan=2, column=1, padx=10, pady=10)
         self.remove_label.config(font=listbox_font)
 
+        self.remove_error = Label(self, bg=self.BG_COLOR, fg="red")
+        self.remove_error.grid(row=1, column=3, rowspan=3, padx=10, pady=10)
+        self.remove_error.config(font=listbox_font)
+
         self.instructions = Button(self, bg=self.BUTTON_BG, fg="black", command=lambda: self.changeInstructions())
         self.instructions.grid(row=7, column=0, padx=10, pady=10)
         if (instructions[7]):
@@ -1318,6 +1356,10 @@ class ManageBarcodes(Frame):
         self.button.config(bg=self.BUTTON_BG)
         self.double_barcode.config(bg=self.BG_COLOR)
         self.update.config(bg=self.button)
+        self.remove_error.config(bg=self.BG_COLOR)
+        self.update_label.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
+        self.instructions.config(bg=self.BUTTON_BG)
+        self.remove_label.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
 
     def getItemName(self, entry):
         self.new_item = entry.get()
@@ -1347,29 +1389,33 @@ class ManageBarcodes(Frame):
         entry.delete(0, END)
 
     def removeItem(self, listbox):
-        item = listbox.get(listbox.curselection()[0])
-        keys = list(barcodes.keys())
-        names = list(barcodes.values())
-        index = names.index(item)
-        barcode = keys[index]
-        del barcodes[barcode]
-        listbox.delete(0, END)
-        count = 0
-        for barcode in barcodes:
-            listbox.insert(count + 1, barcodes[barcode])
-            count += 1
-        if (item in shelf_one_items.items):
-            shelf_one_items.items.remove(item)
-        if (item in shelf_two_items.items):
-            shelf_two_items.items.remove(item)
-        if (item in shelf_three_items.items):
-            shelf_three_items.items.remove(item)
-        if (item in shelf_four_items.items):
-            shelf_four_items.items.remove(item)
-        if (item in shelf_five_items.items):
-            shelf_five_items.items.remove(item)
-        if (item in shelf_six_items.items):
-            shelf_six_items.items.remove(item)
+        try:
+            item = listbox.get(listbox.curselection()[0])
+            keys = list(barcodes.keys())
+            names = list(barcodes.values())
+            index = names.index(item)
+            barcode = keys[index]
+            del barcodes[barcode]
+            listbox.delete(0, END)
+            count = 0
+            for barcode in barcodes:
+                listbox.insert(count + 1, barcodes[barcode])
+                count += 1
+            if (item in shelf_one_items.items):
+                shelf_one_items.items.remove(item)
+            if (item in shelf_two_items.items):
+                shelf_two_items.items.remove(item)
+            if (item in shelf_three_items.items):
+                shelf_three_items.items.remove(item)
+            if (item in shelf_four_items.items):
+                shelf_four_items.items.remove(item)
+            if (item in shelf_five_items.items):
+                shelf_five_items.items.remove(item)
+            if (item in shelf_six_items.items):
+                shelf_six_items.items.remove(item)
+            self.remove_error.config(text="")
+        except IndexError:
+            self.remove_error.config(text="Select an item from\nthe list and try again.")
 
 class Settings(Frame):
     def __init__(self, parent, controller):
