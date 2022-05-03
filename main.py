@@ -10,7 +10,7 @@ color_themes = { "red": ["#ffe3e3", "#ffbfbf", "#850000", "#ff0000"],
                 "indigo": ["#d4d4ff", "#a7a6ff", "#020073", "#0400ff"],
                 "purple": ["#f0d1ff", "#e09cff", "#570080", "#ae00ff"],
                 "pink": ["#fee3ff", "#ff94db", "#73004d", "#ff1988"],
-                "gray": ["#dedae0", "#bdbabf", "#4a474d", "#79737d"]}
+                "gray": ["#dedae0", "#bdbabf", "#4a474d", "#79737d"] }
 
 # initialize current shelf colors
 try:
@@ -19,6 +19,13 @@ try:
 except FileNotFoundError:
     shelf_colors = ["red", "orange", "yellow", "green", "blue", "indigo", "purple", "pink", "gray"]
 
+# initialize instructions settings
+try:
+    with open("instructions.pickle", "rb") as f:
+        instructions = pickle.load(f)
+except FileNotFoundError:
+    instructions = [True, True, True, True, True, True, True, True, True]
+
 # grab the barcodes from the previous section unless there are none
 try:
     with open("barcodes.pickle", "rb") as f:
@@ -26,6 +33,7 @@ try:
 except FileNotFoundError:
     barcodes = { }
 
+# initialize shelf names
 try:
     with open("frames.pickle", "rb") as f:
         frames = pickle.load(f)
@@ -195,22 +203,61 @@ class Home(Frame):
 
         # create a label in case the text in the searchable field isn't found
         # set it to search until the search button is used
-        self.not_found = Label(self, text="Type in an item name or\nscan a barcode to search.", bg=self.BG_COLOR, fg=self.LABEL_FG)
-        self.not_found.grid(row=5, column=1, padx=10, pady=10)
+        self.not_found = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG)
+        self.not_found.grid(row=5, rowspan=2, column=1, padx=10, pady=10)
         self.not_found.config(font=listbox_font)
 
+        # create a button to update the frame when clicked
         self.update = Button(self, bg=self.BUTTON_BG, fg="black", text="UPDATE SCREEN", command=lambda: self.changeTitle())
-        self.update.grid(row=0, column=2, padx=10, pady=10)
+        self.update.grid(row=5, column=2, padx=10, pady=10)
         self.update.config(font=button_font)
+
+        self.update_label = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG)
+        self.update_label.grid(row=6, column=2, padx=10, pady=10)
+        self.update_label.config(font=listbox_font)
+
+        self.shelf_instructions = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG)
+        self.shelf_instructions.grid(row=0, rowspan=2, column=3, padx=10, pady=10)
+        self.shelf_instructions.config(font=listbox_font)
+
+        self.instructions = Button(self, bg=self.BUTTON_BG, fg="black", command=lambda: self.hideInstructions())
+        self.instructions.grid(row=2, column=3, padx=10, pady=10)
+        if (instructions[0]):
+            self.instructions.config(font=button_font, text="HIDE INSTRUCTIONS")
+            self.update_label.config(text="Press update to refresh\ncolors and titles.")
+            self.not_found.config(text="Type in an item name or\nscan a barcode. Press\nenter to search.")
+            self.shelf_instructions.config(text="Click on a shelf\nor search from an item\nto go to that shelf.")
+        else:
+            self.instructions.config(font=button_font, text="SHOW INSTRUCTIONS")
+            self.update_label.config(text="             ")
+            self.not_found.config(text="Search")
+            self.shelf_instructions.config(text="            ")
 
         # create a searchable field
         self.field = Entry(self, bg=self.BG_COLOR, fg=self.LABEL_FG)
         self.field.grid(row=4, column=1, padx=10, pady=10)
         self.field.config(font=listbox_font)
         self.field.bind("<Return>", self.searchItems)
+
+    def hideInstructions(self):
+        if (instructions[0]):
+            self.instructions.config(text="SHOW INSTRUCTIONS")
+            self.update_label.config(text="             ")
+            self.not_found.config(text="Search")
+            self.shelf_instructions.config(text="            ")
+            del instructions[0]
+            instructions.insert(0, False)
+        else:
+            self.instructions.config(text="HIDE INSTRUCTIONS")
+            self.update_label.config(text="Press update to refresh\ncolors and titles.")
+            self.not_found.config(text="Type in an item name or\nscan a barcode. Press\nenter to search.")
+            self.shelf_instructions.config(text="Click on a shelf\nor search from an item\nto go to that shelf.")
+            del instructions[0]
+            instructions.insert(0, True)
     
     # change the titles of all buttons to match shelf titles
-    # once the Home Button label is clicked
+    # change colors if colors have been updated
+    # once the update button is clicked
     def changeTitle(self):
         color = shelf_colors[0]
         self.BG_COLOR = (color_themes[color])[0]
@@ -270,7 +317,10 @@ class Home(Frame):
                 self.controller.showFrame(Six)
                 self.field.delete(0, END)
             else:
-                self.not_found.config(text="Item not found", fg="red")
+                if (instructions[0]):
+                    self.not_found.config(text="Item not found.\nCheck your spelling or\nsearch for another item.)", fg="red")
+                else:
+                    self.not_found.config(text="Item not found", fg="red")
                 self.field.delete(0, END)
         # if not, set the search phrase to the word input
         else:
@@ -320,51 +370,103 @@ class One(Frame):
         button_font = ("Century Gothic", 16, "bold")
         listbox_font = ("Century Gothic", 14)
 
+        # label for title of the shelf
         self.title = Label(self, bg=self.BG_COLOR, fg=self.TITLE_FG, text=frames[1])
         self.title.grid(row=0, column=0, padx=10, pady=10)
         self.title.config(font=self.title_font)
-        self.title.bind("<Button-1>", lambda event: self.changeTitle(event))
-
-        self.home = Button(self, bg=self.BUTTON_BG, fg="black", text=f"{frames[0]}", command = lambda: controller.showFrame(Home))
+        
+        # button to return back to the home page
+        self.home = Button(self, bg=self.BUTTON_BG, fg="black", text=f"{frames[0]}".upper(), command = lambda: controller.showFrame(Home))
         self.home.grid(row=1, column=0, padx=10, pady=10)
         self.home.config(font=button_font)
 
+        # label for the listbox of items on the shelf
         self.items_label = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG, text=f"Items on {frames[1]}: ")
         self.items_label.grid(row=0, column=2, padx=10, pady=10)
         self.items_label.config(font=button_font)
 
+        # listbox of items on the shelf
         self.items = Listbox(self, fg=self.LABEL_FG)
-        self.items.grid(row=1, rowspan=3, column=2, columnspan=2, padx=10, pady=10)
+        self.items.grid(row=1, rowspan=4, column=2, columnspan=2, padx=10, pady=10)
+        # iterates through the list of items on shelf one
+        # to put all items into the listbox
         for i in range(len(shelf_one_items.items)):
             self.items.insert(i + 1, shelf_one_items.items[i])
         self.items.config(font=listbox_font)
 
-        self.add_label = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG, text="add item")
+        # label for the field to add items to the shelf
+        self.add_label = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG)
         self.add_label.grid(row=1, column=1, padx=10, pady=10)
-        self.add_label.config(font=button_font)
+        self.add_label.config(font=listbox_font)
 
+        # label to explain how to remove items from the shelf
+        self.remove_label = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG)
+        self.remove_label.grid(row=6, column=2, padx=10, pady=10)
+        self.remove_label.config(font=listbox_font)
+
+        # field to add items to the shelf
         self.field = Entry(self, bg=self.BG_COLOR, fg=self.LABEL_FG)
         self.field.grid(row=2, column=1, padx=10, pady=10)
         self.field.config(font=listbox_font)
         self.field.bind("<Return>", lambda event: shelf_one_items.addItem(event, self.field, self.items))
 
+        # button to remove an item from a shelf
         self.grab = Button(self, bg=self.BUTTON_BG, fg="black", text="REMOVE", command = lambda: shelf_one_items.removeItem(self.items))
-        self.grab.grid(row=4, column=2, padx=10, pady=10)
+        self.grab.grid(row=5, column=2, padx=10, pady=10)
         self.grab.config(font=button_font)
 
+        # adds a scrollbar to the listbox of items on the shelf
         scroll = Scrollbar(self)
         scroll.grid(row=1, column=3)
         self.items.config(yscrollcommand=scroll.set)
         scroll.config(command=self.items.yview)
 
+        # goes to shelf one
         self.move_to_shelf = Button(self, bg=self.BUTTON_BG, fg="black", text="Go to Shelf One", command=lambda: self.goToShelfOne())
         self.move_to_shelf.grid(row=4, column=0, padx=10, pady=10)
         self.move_to_shelf.config(font=button_font)
 
+        # updates the widgets on the shelf to the text and color as updated in the settings
         self.update = Button(self, bg=self.BUTTON_BG, fg="black", text="UPDATE SCREEN", command=lambda: self.changeTitle())
-        self.update.grid(row=0, column=1, padx=10, pady=10)
+        self.update.grid(row=5, column=1, padx=10, pady=10)
         self.update.config(font=button_font)
 
+        # instructions for the update label
+        self.update_label = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG)
+        self.update_label.grid(row=6, column=1, padx=10, pady=10)
+        self.update_label.config(font=listbox_font)
+
+        # button to show or hide insturctions
+        self.instructions = Button(self, bg=self.BUTTON_BG, fg="black", command = lambda: self.changeInstructions())
+        self.instructions.grid(row=5, column=0, padx=10, pady=10)
+        if (instructions[1]):
+            self.instructions.config(font=button_font, text="HIDE INSTRUCTIONS")
+            self.add_label.config(text="Type in an item\nor scan its barcode.\nPress enter to add\nit to the shelf.")
+            self.update_label.config(text="Press update to see\nchanges made in settings.")
+            self.remove_label.config(text="Select an item and\npress remove to take it\noff the shelf.")
+        else:
+            self.instructions.config(font=button_font, text="SHOW INSTRUCTIONS")
+            self.update_label.config(text="                 ")
+            self.remove_label.config(text="                 ")
+            self.add_label.config(text="add to shelf")
+
+    def changeInstructions(self):
+        if (instructions[1]):
+            self.update_label.config(text="                 ")
+            self.add_label.config(text="add to shelf")
+            self.remove_label.config(text="                 ")
+            self.instructions.config(text="SHOW INSTRUCTIONS")
+            del instructions[1]
+            instructions.insert(1, False)
+        else:
+            self.update_label.config(text="Press update to see\nchanges made in settings.")
+            self.remove_label.config(text="Select an item and\npress remove to take it\noff the shelf.")
+            self.add_label.config(text="Type in an item\nor scan its barcode.\nPress enter to add\nit to the shelf.")
+            self.instructions.config(text="HIDE INSTRUCTIONS")
+            del instructions[1]
+            instructions.insert(1, True)
+
+    # updates the titles and colors of every widget
     def changeTitle(self):
         new_name = frames[1]
         self.title.config(text=new_name)
@@ -381,9 +483,13 @@ class One(Frame):
         self.field.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
         self.grab.config(bg=self.BUTTON_BG)
         self.move_to_shelf.config(bg=self.BUTTON_BG)
-        self.add_label.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
         self.update.config(bg=self.BUTTON_BG)
+        self.add_label.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
+        self.remove_label.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
+        self.update_label.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
+        self.instructions.config(bg=self.BUTTON_BG)
 
+    # code to move to shelf one
     def goToShelfOne(self):
         print ("Arrived at Shelf One.")
 
@@ -406,50 +512,104 @@ class Two(Frame):
         button_font = ("Century Gothic", 16, "bold")
         listbox_font = ("Century Gothic", 14)
 
+        # title of the current shelf
         self.title = Label(self, bg=self.BG_COLOR, fg=self.TITLE_FG, text=f"{frames[2]}")
         self.title.grid(row=0, column=0, padx=10, pady=10)
         self.title.config(font=self.title_font)
         
+        # button to return to the home page frame
         self.home = Button(self, bg=self.BUTTON_BG, fg="black", text=f"{frames[0]}", command = lambda: controller.showFrame(Home))
         self.home.grid(row=1, column=0, padx=10, pady=10)
         self.home.config(font=button_font)
 
-        self.add_label = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG, text="add item")
-        self.add_label.grid(row=1, column=1, padx=10, pady=10)
-        self.add_label.config(font=button_font)
-
+        # label for the listbox that lists all the items currently stored on the shelf
         self.items_label = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG, text=f"Items on {frames[2]}: ")
         self.items_label.grid(row=0, column=2, padx=10, pady=10)
         self.items_label.config(font=button_font)
 
+        # listbox that stores all items currently on the shelf
         self.items = Listbox(self, fg=self.LABEL_FG)
-        self.items.grid(row=1, column=2, rowspan=3, columnspan=2, padx=10, pady=10)
+        self.items.grid(row=1, column=2, rowspan=4, columnspan=2, padx=10, pady=10)
         for i in range(len(shelf_two_items.items)):
             self.items.insert(i + 1, shelf_two_items.items[i])
         self.items.config(font=listbox_font)
 
+        # entry field where users can type in an item or scan a barcode
+        # to add the item to the shelf
         self.field = Entry(self, bg=self.BG_COLOR, fg=self.LABEL_FG)
         self.field.grid(row=2, column=1, padx=10, pady=10)
         self.field.config(font=listbox_font)
         self.field.bind("<Return>", lambda event: shelf_two_items.addItem(event, self.field, self.items))
 
+        # button to remove an item from the shelf ( an item must be
+        # selected in the listbox for this to function properly)
         self.grab = Button(self, bg=self.BUTTON_BG, fg="black", text="REMOVE", command = lambda: shelf_two_items.removeItem(self.items))
-        self.grab.grid(row=4, column=2, padx=10, pady=10)
+        self.grab.grid(row=5, column=2, padx=10, pady=10)
         self.grab.config(font=button_font)
 
+        # adds a scrollbar to the list of items
         scroll = Scrollbar(self)
         scroll.grid(row=1, column=3)
         self.items.config(yscrollcommand=scroll.set)
         scroll.config(command=self.items.yview)
 
+        # button to have the shelf code move to the correct shelf
         self.move_to_shelf = Button(self, bg=self.BUTTON_BG, fg="black", text="Go to Shelf Two", command=lambda: self.goToShelfTwo())
         self.move_to_shelf.grid(row=4, column=0, padx=10, pady=10)
         self.move_to_shelf.config(font=button_font)
 
+        # button to update the text and color of the widgets on this shelf
+        # as according to changes made in the settings frame
         self.update = Button(self, bg=self.BUTTON_BG, fg="black", text="UPDATE SCREEN", command=lambda: self.changeTitle())
-        self.update.grid(row=0, column=2, padx=10, pady=10)
+        self.update.grid(row=5, column=1, padx=10, pady=10)
         self.update.config(font=button_font)
 
+        # label for the entry field that adds items to the shelf
+        self.add_label = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG, text="")
+        self.add_label.grid(row=1, column=1, padx=10, pady=10)
+        self.add_label.config(font=listbox_font)
+
+        # instructions for the update label
+        self.update_label = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG, text="")
+        self.update_label.grid(row=6, column=1, padx=10, pady=10)
+        self.update_label.config(font=listbox_font)
+
+        # label to explain how to remove items from the shelf
+        self.remove_label = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG, text="")
+        self.remove_label.grid(row=6, column=2, padx=10, pady=10)
+        self.remove_label.config(font=listbox_font)
+
+        # button to show or hide insturctions
+        self.instructions = Button(self, bg=self.BUTTON_BG, fg="black", command = lambda: self.changeInstructions())
+        self.instructions.grid(row=5, column=0, padx=10, pady=10)
+        if (instructions[2]):
+            self.instructions.config(font=button_font, text="HIDE INSTRUCTIONS")
+            self.add_label.config(text="Type in an item\nor scan its barcode.\nPress enter to add\nit to the shelf.")
+            self.update_label.config(text="Press update to see\nchanges made in settings.")
+            self.remove_label.config(text="Select an item and\npress remove to take it\noff the shelf.")
+        else:
+            self.instructions.config(font=button_font, text="SHOW INSTRUCTIONS")
+            self.update_label.config(text="                 ")
+            self.remove_label.config(text="                 ")
+            self.add_label.config(text="add to shelf")
+
+    def changeInstructions(self):
+        if (instructions[2]):
+            self.update_label.config(text="                 ")
+            self.add_label.config(text="add to shelf")
+            self.remove_label.config(text="                 ")
+            self.instructions.config(text="SHOW INSTRUCTIONS")
+            del instructions[2]
+            instructions.insert(2, False)
+        else:
+            self.update_label.config(text="Press update to see\nchanges made in settings.")
+            self.remove_label.config(text="Select an item and\npress remove to take it\noff the shelf.")
+            self.add_label.config(text="Type in an item\nor scan its barcode.\nPress enter to add\nit to the shelf.")
+            self.instructions.config(text="HIDE INSTRUCTIONS")
+            del instructions[2]
+            instructions.insert(2, True)
+
+    # updates the text and color of the widgets
     def changeTitle(self):
         new_name = frames[2]
         self.title.config(text=new_name)
@@ -466,9 +626,13 @@ class Two(Frame):
         self.field.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
         self.grab.config(bg=self.BUTTON_BG)
         self.move_to_shelf.config(bg=self.BUTTON_BG)
-        self.add_label.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
         self.update.config(bg=self.BUTTON_BG)
+        self.add_label.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
+        self.remove_label.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
+        self.update_label.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
+        self.instructions.config(bg=self.BUTTON_BG)
 
+    # moves the shelf to this shelf
     def goToShelfTwo(self):
         print ("Arrived at Shelf Two.")
 
@@ -491,50 +655,107 @@ class Three(Frame):
         button_font = ("Century Gothic", 16, "bold")
         listbox_font = ("Century Gothic", 14)
 
+        # sets the title to the current title of the shelf
         self.title = Label(self, bg=self.BG_COLOR, fg=self.TITLE_FG, text=f"{frames[3]}")
         self.title.grid(row=0, column=0, padx=10, pady=10)
         self.title.config(font=self.title_font)
         
+        # sets the home button to return to the home page
         self.home = Button(self, bg=self.BUTTON_BG, fg="black", text=f"{frames[0]}", command = lambda: controller.showFrame(Home))
         self.home.grid(row=1, column=0, padx=10, pady=10)
         self.home.config(font=button_font)
 
+        # labels the listbox of items
         self.items_label = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG, text=f"Items on {frames[3]}: ")
         self.items_label.grid(row=0, column=2, padx=10, pady=10)
         self.items_label.config(font=button_font)
 
+        # puts the items on the shelf into the listbox to display
         self.items = Listbox(self, fg=self.LABEL_FG)
-        self.items.grid(row=1, column=2, rowspan=3, columnspan=2, padx=10, pady=10)
+        self.items.grid(row=1, column=2, rowspan=4, columnspan=2, padx=10, pady=10)
         for i in range(len(shelf_three_items.items)):
             self.items.insert(i + 1, shelf_three_items.items[i])
         self.items.config(font=listbox_font)
 
+        # labels the box to add items
         self.add_label = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG, text="add item")
         self.add_label.grid(row=1, column=1, padx=10, pady=10)
         self.add_label.config(font=button_font)
 
+        # entry field that adds items to the shelf
         self.field = Entry(self, bg=self.BG_COLOR, fg=self.LABEL_FG)
         self.field.grid(row=2, column=1, padx=10, pady=10)
         self.field.config(font=listbox_font)
         self.field.bind("<Return>", lambda event: shelf_three_items.addItem(event, self.field, self.items))
 
+        # button to remove items from the shelf when they are selected in the listbox
         self.grab = Button(self, bg=self.BUTTON_BG, fg="black", text="REMOVE", command = lambda: shelf_three_items.removeItem(self.items))
-        self.grab.grid(row=4, column=2, padx=10, pady=10)
+        self.grab.grid(row=5, column=2, padx=10, pady=10)
         self.grab.config(font=button_font)
 
+        # bar to scroll through the listbox
         scroll = Scrollbar(self)
         scroll.grid(row=1, column=3)
         self.items.config(yscrollcommand=scroll.set)
         scroll.config(command=self.items.yview)
 
+        # button to have the shelf rotate to this shelf
         self.move_to_shelf = Button(self, bg=self.BUTTON_BG, fg="black", text="Go to Shelf Three", command=lambda: self.goToShelfThree())
         self.move_to_shelf.grid(row=4, column=0, padx=10, pady=10)
         self.move_to_shelf.config(font=button_font)
 
+        # button to update the text and color of the widgets on the shelf
         self.update = Button(self, bg=self.BUTTON_BG, fg="black", text="UPDATE SCREEN", command=lambda: self.changeTitle())
-        self.update.grid(row=0, column=2, padx=10, pady=10)
+        self.update.grid(row=5, column=1, padx=10, pady=10)
         self.update.config(font=button_font)
 
+    # label for the entry field that adds items to the shelf
+        self.add_label = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG, text="")
+        self.add_label.grid(row=1, column=1, padx=10, pady=10)
+        self.add_label.config(font=listbox_font)
+
+        # instructions for the update label
+        self.update_label = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG, text="")
+        self.update_label.grid(row=6, column=1, padx=10, pady=10)
+        self.update_label.config(font=listbox_font)
+
+        # label to explain how to remove items from the shelf
+        self.remove_label = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG, text="")
+        self.remove_label.grid(row=6, column=2, padx=10, pady=10)
+        self.remove_label.config(font=listbox_font)
+
+        # button to show or hide insturctions
+        self.instructions = Button(self, bg=self.BUTTON_BG, fg="black", command = lambda: self.changeInstructions())
+        self.instructions.grid(row=5, column=0, padx=10, pady=10)
+        if (instructions[3]):
+            self.instructions.config(font=button_font, text="HIDE INSTRUCTIONS")
+            self.add_label.config(text="Type in an item\nor scan its barcode.\nPress enter to add\nit to the shelf.")
+            self.update_label.config(text="Press update to see\nchanges made in settings.")
+            self.remove_label.config(text="Select an item and\npress remove to take it\noff the shelf.")
+        else:
+            self.instructions.config(font=button_font, text="SHOW INSTRUCTIONS")
+            self.update_label.config(text="                 ")
+            self.remove_label.config(text="                 ")
+            self.add_label.config(text="add to shelf")
+
+    def changeInstructions(self):
+        if (instructions[3]):
+            self.update_label.config(text="                 ")
+            self.add_label.config(text="add to shelf")
+            self.remove_label.config(text="                 ")
+            self.instructions.config(text="SHOW INSTRUCTIONS")
+            del instructions[3]
+            instructions.insert(3, False)
+        else:
+            self.update_label.config(text="Press update to see\nchanges made in settings.")
+            self.remove_label.config(text="Select an item and\npress remove to take it\noff the shelf.")
+            self.add_label.config(text="Type in an item\nor scan its barcode.\nPress enter to add\nit to the shelf.")
+            self.instructions.config(text="HIDE INSTRUCTIONS")
+            del instructions[3]
+            instructions.insert(3, True)
+
+    # function triggered when pressing the update button
+    # updates the text and widgets on the shelf
     def changeTitle(self):
         new_name = frames[3]
         self.title.config(text=new_name)
@@ -551,9 +772,14 @@ class Three(Frame):
         self.field.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
         self.grab.config(bg=self.BUTTON_BG)
         self.move_to_shelf.config(bg=self.BUTTON_BG)
-        self.add_label.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
         self.update.config(bg=self.BUTTON_BG)
+        self.add_label.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
+        self.remove_label.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
+        self.update_label.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
+        self.instructions.config(bg=self.BUTTON_BG)
 
+    # function to rotate the shelves to the third shelf
+    # triggers when the mvoe to shelf button is activated
     def goToShelfThree(self):
         print ("Arrived at Shelf Three.")
 
@@ -593,7 +819,7 @@ class Four(Frame):
         self.items_label.config(font=button_font)
 
         self.items = Listbox(self, fg=self.LABEL_FG)
-        self.items.grid(row=1, column=2, rowspan=3, columnspan=2, padx=10, pady=10)
+        self.items.grid(row=1, column=2, rowspan=4, columnspan=2, padx=10, pady=10)
         for i in range(len(shelf_four_items.items)):
             self.items.insert(i + 1, shelf_four_items.items[i])
         self.items.config(font=listbox_font)
@@ -604,7 +830,7 @@ class Four(Frame):
         self.field.bind("<Return>", lambda event: shelf_four_items.addItem(event, self.field, self.items))
 
         self.grab = Button(self, bg=self.BUTTON_BG, fg="black", text="REMOVE", command = lambda: shelf_four_items.removeItem(self.items))
-        self.grab.grid(row=4, column=2, padx=10, pady=10)
+        self.grab.grid(row=5, column=2, padx=10, pady=10)
         self.grab.config(font=button_font)
 
         scroll = Scrollbar(self)
@@ -617,8 +843,53 @@ class Four(Frame):
         self.move_to_shelf.config(font=button_font)
 
         self.update = Button(self, bg=self.BUTTON_BG, fg="black", text="UPDATE SCREEN", command=lambda: self.changeTitle())
-        self.update.grid(row=0, column=2, padx=10, pady=10)
+        self.update.grid(row=5, column=1, padx=10, pady=10)
         self.update.config(font=button_font)
+
+        # label for the entry field that adds items to the shelf
+        self.add_label = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG, text="")
+        self.add_label.grid(row=1, column=1, padx=10, pady=10)
+        self.add_label.config(font=listbox_font)
+
+        # instructions for the update label
+        self.update_label = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG, text="")
+        self.update_label.grid(row=6, column=1, padx=10, pady=10)
+        self.update_label.config(font=listbox_font)
+
+        # label to explain how to remove items from the shelf
+        self.remove_label = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG, text="")
+        self.remove_label.grid(row=6, column=2, padx=10, pady=10)
+        self.remove_label.config(font=listbox_font)
+
+        # button to show or hide insturctions
+        self.instructions = Button(self, bg=self.BUTTON_BG, fg="black", command = lambda: self.changeInstructions())
+        self.instructions.grid(row=5, column=0, padx=10, pady=10)
+        if (instructions[4]):
+            self.instructions.config(font=button_font, text="HIDE INSTRUCTIONS")
+            self.add_label.config(text="Type in an item\nor scan its barcode.\nPress enter to add\nit to the shelf.")
+            self.update_label.config(text="Press update to see\nchanges made in settings.")
+            self.remove_label.config(text="Select an item and\npress remove to take it\noff the shelf.")
+        else:
+            self.instructions.config(font=button_font, text="SHOW INSTRUCTIONS")
+            self.update_label.config(text="                 ")
+            self.remove_label.config(text="                 ")
+            self.add_label.config(text="add to shelf")
+
+    def changeInstructions(self):
+        if (instructions[4]):
+            self.update_label.config(text="                 ")
+            self.add_label.config(text="add to shelf")
+            self.remove_label.config(text="                 ")
+            self.instructions.config(text="SHOW INSTRUCTIONS")
+            del instructions[4]
+            instructions.insert(4, False)
+        else:
+            self.update_label.config(text="Press update to see\nchanges made in settings.")
+            self.remove_label.config(text="Select an item and\npress remove to take it\noff the shelf.")
+            self.add_label.config(text="Type in an item\nor scan its barcode.\nPress enter to add\nit to the shelf.")
+            self.instructions.config(text="HIDE INSTRUCTIONS")
+            del instructions[4]
+            instructions.insert(4, True)
 
     def changeTitle(self):
         new_name = frames[4]
@@ -636,8 +907,11 @@ class Four(Frame):
         self.field.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
         self.grab.config(bg=self.BUTTON_BG)
         self.move_to_shelf.config(bg=self.BUTTON_BG)
-        self.add_label.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
         self.update.config(bg=self.BUTTON_BG)
+        self.add_label.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
+        self.remove_label.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
+        self.update_label.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
+        self.instructions.config(bg=self.BUTTON_BG)
 
     def goToShelfFour(self):
         print ("Arrived at Shelf Four.")
@@ -678,7 +952,7 @@ class Five(Frame):
         self.items_label.config(font=button_font)
 
         self.items = Listbox(self, fg=self.LABEL_FG)
-        self.items.grid(row=1, column=2, rowspan=3, columnspan=2, padx=10, pady=10)
+        self.items.grid(row=1, column=2, rowspan=4, columnspan=2, padx=10, pady=10)
         for i in range(len(shelf_five_items.items)):
             self.items.insert(i + 1, shelf_five_items.items[i])
         self.items.config(font=listbox_font)
@@ -689,7 +963,7 @@ class Five(Frame):
         self.field.bind("<Return>", lambda event: shelf_five_items.addItem(event, self.field, self.items))
 
         self.grab = Button(self, bg=self.BUTTON_BG, fg="black", text="REMOVE", command = lambda: shelf_five_items.removeItem(self.items))
-        self.grab.grid(row=4, column=2, padx=10, pady=10)
+        self.grab.grid(row=5, column=2, padx=10, pady=10)
         self.grab.config(font=button_font)
 
         scroll = Scrollbar(self)
@@ -702,8 +976,53 @@ class Five(Frame):
         self.move_to_shelf.config(font=button_font)
 
         self.update = Button(self, bg=self.BUTTON_BG, fg="black", text="UPDATE SCREEN", command=lambda: self.changeTitle())
-        self.update.grid(row=0, column=2, padx=10, pady=10)
+        self.update.grid(row=5, column=1, padx=10, pady=10)
         self.update.config(font=button_font)
+
+        # label for the entry field that adds items to the shelf
+        self.add_label = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG, text="")
+        self.add_label.grid(row=1, column=1, padx=10, pady=10)
+        self.add_label.config(font=listbox_font)
+
+        # instructions for the update label
+        self.update_label = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG, text="")
+        self.update_label.grid(row=6, column=1, padx=10, pady=10)
+        self.update_label.config(font=listbox_font)
+
+        # label to explain how to remove items from the shelf
+        self.remove_label = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG, text="")
+        self.remove_label.grid(row=6, column=2, padx=10, pady=10)
+        self.remove_label.config(font=listbox_font)
+
+        # button to show or hide insturctions
+        self.instructions = Button(self, bg=self.BUTTON_BG, fg="black", command = lambda: self.changeInstructions())
+        self.instructions.grid(row=5, column=0, padx=10, pady=10)
+        if (instructions[5]):
+            self.instructions.config(font=button_font, text="HIDE INSTRUCTIONS")
+            self.add_label.config(text="Type in an item\nor scan its barcode.\nPress enter to add\nit to the shelf.")
+            self.update_label.config(text="Press update to see\nchanges made in settings.")
+            self.remove_label.config(text="Select an item and\npress remove to take it\noff the shelf.")
+        else:
+            self.instructions.config(font=button_font, text="SHOW INSTRUCTIONS")
+            self.update_label.config(text="                 ")
+            self.remove_label.config(text="                 ")
+            self.add_label.config(text="add to shelf")
+
+    def changeInstructions(self):
+        if (instructions[5]):
+            self.update_label.config(text="                 ")
+            self.add_label.config(text="add to shelf")
+            self.remove_label.config(text="                 ")
+            self.instructions.config(text="SHOW INSTRUCTIONS")
+            del instructions[5]
+            instructions.insert(5, False)
+        else:
+            self.update_label.config(text="Press update to see\nchanges made in settings.")
+            self.remove_label.config(text="Select an item and\npress remove to take it\noff the shelf.")
+            self.add_label.config(text="Type in an item\nor scan its barcode.\nPress enter to add\nit to the shelf.")
+            self.instructions.config(text="HIDE INSTRUCTIONS")
+            del instructions[5]
+            instructions.insert(5, True)
 
     def changeTitle(self):
         new_name = frames[5]
@@ -723,6 +1042,10 @@ class Five(Frame):
         self.move_to_shelf.config(bg=self.BUTTON_BG)
         self.add_label.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
         self.update.config(bg=self.BUTTON_BG)
+        self.add_label.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
+        self.remove_label.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
+        self.update_label.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
+        self.instructions.config(bg=self.BUTTON_BG)
 
     def goToShelfFive(self):
         print ("Arrived at Shelf Five.")
@@ -763,7 +1086,7 @@ class Six(Frame):
         self.items_label.config(font=button_font)
 
         self.items = Listbox(self, fg=self.LABEL_FG)
-        self.items.grid(row=1, column=2, rowspan=3, columnspan=2, padx=10, pady=10)
+        self.items.grid(row=1, column=2, rowspan=4, columnspan=2, padx=10, pady=10)
         for i in range(len(shelf_six_items.items)):
             self.items.insert(i + 1, shelf_six_items.items[i])
         self.items.config(font=listbox_font)
@@ -774,7 +1097,7 @@ class Six(Frame):
         self.field.bind("<Return>", lambda event: shelf_six_items.addItem(event, self.field, self.items))
 
         self.grab = Button(self, fg="black", bg=self.BUTTON_BG, text="REMOVE", command = lambda: shelf_six_items.removeItem(self.items))
-        self.grab.grid(row=4, column=2, padx=10, pady=10)
+        self.grab.grid(row=5, column=2, padx=10, pady=10)
         self.grab.config(font=button_font)
 
         scroll = Scrollbar(self)
@@ -787,8 +1110,53 @@ class Six(Frame):
         self.move_to_shelf.config(font=button_font)
 
         self.update = Button(self, bg=self.BUTTON_BG, fg="black", text="UPDATE SCREEN", command=lambda: self.changeTitle())
-        self.update.grid(row=0, column=2, padx=10, pady=10)
+        self.update.grid(row=5, column=1, padx=10, pady=10)
         self.update.config(font=button_font)
+
+        # label for the entry field that adds items to the shelf
+        self.add_label = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG, text="")
+        self.add_label.grid(row=1, column=1, padx=10, pady=10)
+        self.add_label.config(font=listbox_font)
+
+        # instructions for the update label
+        self.update_label = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG, text="")
+        self.update_label.grid(row=6, column=1, padx=10, pady=10)
+        self.update_label.config(font=listbox_font)
+
+        # label to explain how to remove items from the shelf
+        self.remove_label = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG, text="")
+        self.remove_label.grid(row=6, column=2, padx=10, pady=10)
+        self.remove_label.config(font=listbox_font)
+
+        # button to show or hide insturctions
+        self.instructions = Button(self, bg=self.BUTTON_BG, fg="black", command = lambda: self.changeInstructions())
+        self.instructions.grid(row=5, column=0, padx=10, pady=10)
+        if (instructions[6]):
+            self.instructions.config(font=button_font, text="HIDE INSTRUCTIONS")
+            self.add_label.config(text="Type in an item\nor scan its barcode.\nPress enter to add\nit to the shelf.")
+            self.update_label.config(text="Press update to see\nchanges made in settings.")
+            self.remove_label.config(text="Select an item and\npress remove to take it\noff the shelf.")
+        else:
+            self.instructions.config(font=button_font, text="SHOW INSTRUCTIONS")
+            self.update_label.config(text="                 ")
+            self.remove_label.config(text="                 ")
+            self.add_label.config(text="add to shelf")
+
+    def changeInstructions(self):
+        if (instructions[6]):
+            self.update_label.config(text="                 ")
+            self.add_label.config(text="add to shelf")
+            self.remove_label.config(text="                 ")
+            self.instructions.config(text="SHOW INSTRUCTIONS")
+            del instructions[6]
+            instructions.insert(6, False)
+        else:
+            self.update_label.config(text="Press update to see\nchanges made in settings.")
+            self.remove_label.config(text="Select an item and\npress remove to take it\noff the shelf.")
+            self.add_label.config(text="Type in an item\nor scan its barcode.\nPress enter to add\nit to the shelf.")
+            self.instructions.config(text="HIDE INSTRUCTIONS")
+            del instructions[6]
+            instructions.insert(6, True)
 
     def changeTitle(self):
         new_name = frames[6]
@@ -806,8 +1174,11 @@ class Six(Frame):
         self.field.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
         self.grab.config(bg=self.BUTTON_BG)
         self.move_to_shelf.config(bg=self.BUTTON_BG)
-        self.add_label.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
         self.update.config(bg=self.BUTTON_BG)
+        self.add_label.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
+        self.remove_label.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
+        self.update_label.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
+        self.instructions.config(bg=self.BUTTON_BG)
 
     def goToShelfSix(self):
         print ("Arrived at Shelf Six.")
@@ -840,11 +1211,11 @@ class ManageBarcodes(Frame):
         self.home.config(font=button_font)
 
         self.items_label = Label(self, bg=self.BG_COLOR, fg=self.TITLE_FG, text=f"Items Saved to Barcodes: ")
-        self.items_label.grid(row=0, column=2, columnspan=2, padx=10, pady=10)
+        self.items_label.grid(row=0, column=1, padx=10, pady=10)
         self.items_label.config(font=button_font)
 
         self.items = Listbox(self, fg=self.LABEL_FG)
-        self.items.grid(row=1, column=2, rowspan=4, columnspan=2, padx=10, pady=10)
+        self.items.grid(row=1, column=1, rowspan=4, padx=10, pady=10)
         count = 0
         for barcode in barcodes:
             self.items.insert(count + 1, barcodes[barcode])
@@ -852,7 +1223,7 @@ class ManageBarcodes(Frame):
         self.items.config(font=listbox_font)
 
         scroll = Scrollbar(self)
-        scroll.grid(row=2, column=3)
+        scroll.grid(row=2, column=2)
         self.items.config(yscrollcommand=scroll.set)
         scroll.config(command=self.items.yview)
 
@@ -868,14 +1239,14 @@ class ManageBarcodes(Frame):
         self.scan.grid_forget()
 
         self.remove = Button(self, bg=self.BUTTON_BG, text="REMOVE", command = lambda: self.removeItem(self.items))
-        self.remove.grid(row=5, column=2, padx=10, pady=10)
+        self.remove.grid(row=5, column=1, padx=10, pady=10)
         self.remove.config(font=button_font)
 
         self.item_name = Entry(self, bg=self.BG_COLOR, fg=self.LABEL_FG)
         self.item_name.grid(row=3, column=0, padx=10, pady=10)
         self.item_name.config(font=listbox_font)
 
-        self.name_label = Label(self, text="What would you like to name this item?", bg=self.BG_COLOR, fg=self.LABEL_FG)
+        self.name_label = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG)
         self.name_label.grid(row=2, column=0, padx=10, pady=10)
         self.name_label.config(font=listbox_font)
 
@@ -888,8 +1259,45 @@ class ManageBarcodes(Frame):
         self.double_barcode.config(font=listbox_font)
 
         self.update = Button(self, bg=self.BUTTON_BG, fg="black", text="UPDATE SCREEN", command=lambda: self.changeTitle())
-        self.update.grid(row=0, column=2, padx=10, pady=10)
+        self.update.grid(row=6, column=0, padx=10, pady=10)
         self.update.config(font=button_font)
+
+        self.update_label = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG)
+        self.update_label.grid(row=5, column=0, padx=10, pady=10)
+        self.update_label.config(font=listbox_font)
+
+        self.remove_label = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG)
+        self.remove_label.grid(row=6, rowspan=2, column=1, padx=10, pady=10)
+        self.remove_label.config(font=listbox_font)
+
+        self.instructions = Button(self, bg=self.BUTTON_BG, fg="black", command=lambda: self.changeInstructions())
+        self.instructions.grid(row=7, column=0, padx=10, pady=10)
+        if (instructions[7]):
+            self.instructions.config(text="HIDE INSTRUCTIONS", font=button_font)
+            self.remove_label.config(text="Click on the item you\nwant to remove, then\nclick 'REMOVE' to clear\nthis item from the barcode")
+            self.name_label.config(text="What would you like to name this item?\nType in the name and press 'NAME'.")
+            self.update_label.config(text="Press 'UPDATE' to refresh colors and titles.")
+        else:
+            self.instructions.config(text="SHOW INSTRUCTIONS", font=button_font)
+            self.remove_label.config(text="             ")
+            self.update_label.config(text="")
+            self.name_label.config(text="What would you like to name this item?")
+    
+    def changeInstructions(self):
+        if (instructions[7]):
+            self.instructions.config(text="SHOW INSTRUCTIONS")
+            self.remove_label.config(text="             ")
+            self.update_label.config(text="")
+            self.name_label.config(text="What would you like to name this item?")
+            del instructions[7]
+            instructions.insert(7, False)
+        else:
+            self.instructions.config(text="HIDE INSTRUCTIONS")
+            self.remove_label.config(text="Click on the item you\nwant to remove, then\nclick 'REMOVE' to clear\nthis item from the barcode")
+            self.name_label.config(text="What would you like to name this item?\nType in the name and press 'NAME'.")
+            self.update_label.config(text="Press 'UPDATE' to refresh colors and titles.")
+            del instructions[7]
+            instructions.insert(7, True)
 
     def changeColor(self):
         color = shelf_colors[7]
@@ -1036,11 +1444,28 @@ class Settings(Frame):
 
         self.current_shelf = frames[0]
 
-        self.update = Button(self, bg=self.BUTTON_BG, fg="black", text="UPDATE SCREEN", command=lambda: self.changeTitle())
-        self.update.grid(row=0, column=2, padx=10, pady=10)
+        self.update = Button(self, bg=self.BUTTON_BG, fg="black", text="UPDATE SCREEN", command=lambda: self.changeColor())
+        self.update.grid(row=5, column=1, padx=10, pady=10)
         self.update.config(font=button_font)
 
-    def changeColor(self, event):
+        self.instructions = Button(self, bg=self.BUTTON_BG, fg="black", command=lambda: self.changeInstructions())
+        self.instructions.grid(row=5, column=0, padx=10, pady=10)
+        if (instructions[8]):
+            self.instructions.config(text="HIDE INSTRUCTIONS", font=button_font)
+        else:
+            self.instructions.config(text="SHOW INSTRUCTIONS", font=button_font)
+
+    def changeInstructions(self):
+        if (instructions[8]):
+            self.instructions.config(text="SHOW INSTRUCTIONS")
+            del instructions[8]
+            instructions.insert(8, False)
+        else:
+            self.instructions.config(text="HIDE INSTRUCTIONS")
+            del instructions[8]
+            instructions.insert(8, True)
+
+    def changeColor(self):
         color = shelf_colors[8]
         self.BG_COLOR = (color_themes[color])[0]
         self.BUTTON_BG = (color_themes[color])[1]
@@ -1051,7 +1476,7 @@ class Settings(Frame):
         self.home.config(text=f"{frames[0]}", bg=self.BUTTON_BG)
         self.shelf_names.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
         self.shelf_scroll.config(fg=self.LABEL_FG)
-        self.edit_name.config(bg=self.BG_COLOR)
+        self.edit_name.config(bg=self.BUTTON_BG)
         self.shelf_colors.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
         self.colors_box.config(fg=self.LABEL_FG)
         self.change_color.config(bg=self.BUTTON_BG)
@@ -1062,17 +1487,23 @@ class Settings(Frame):
         self.update.config(bg=self.BUTTON_BG)
 
     def editName(self):
-        self.edit_label.config(text="What would you like\nto name this shelf?")
+        if (instructions[8]):
+            self.edit_label.config(text="What would you like\nto name this shelf?\n(Select a shelf from the\nlist, type in a name,\nand press enter.)")
+        else:
+            self.edit_label.config(text="What would you like\nto name this shelf?")
         self.edit_field.grid(row=3, column=0, padx=10, pady=10)
 
     def editColor(self):
-        self.edit_label.config(text="Select a shelf.")
+        if (instructions[8]):
+            self.edit_label.config(text="Select a shelf,\nthen press 'SELECT SHELF'.")
+        else:
+            self.edit_label.config(text="Select a shelf.")
         self.select_shelf.grid(row=4, column=0, padx=10, pady=10)
 
     def selectShelf(self):
         try:
             self.current_shelf = self.shelf_scroll.get(self.shelf_scroll.curselection())
-            self.edit_label.config(text=f"What color would you\nlike to make {self.current_shelf}?")
+            self.edit_label.config(text=f"What color would you\nlike to make {self.current_shelf}?\nSelect a color from\nthe list then press\n'SELECT COLOR'.")
             self.select_shelf.grid_forget()
             self.select_color.grid(row=4, column=0, padx=10, pady=10)
         except TclError:
@@ -1122,5 +1553,7 @@ with open("frames.pickle", "wb") as f:
     pickle.dump(frames, f)
 with open("shelf_colors.pickle", "wb") as f:
     pickle.dump(shelf_colors, f)
+with open("instructions.pickle", "wb") as f:
+    pickle.dump(instructions, f)
 # =======
 
