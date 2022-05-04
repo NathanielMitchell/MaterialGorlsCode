@@ -129,11 +129,14 @@ except FileNotFoundError:
 
 
 # initialize the current shelf
-try:
-    with open ("current_shelf.pickle", "rb") as f:
-        current_shelf = pickle.load(f)
-except FileNotFoundError:
-    current_shelf = frames[1]
+# try:
+#     with open ("current_shelf.pickle", "rb") as f:
+#         current_shelf = pickle.load(f)
+# except FileNotFoundError:
+current_shelf = 1
+
+current_shelf_label = Label(text=f"Current Shelf = {current_shelf}")
+current_shelf_label.grid(row=0, column=0, padx=10, pady=10)
 
 # controls the framework and allows for switching between frames
 class ShelfApp(Tk):
@@ -607,7 +610,7 @@ class One(Frame):
 
     # code to move to shelf one
     def goToShelfOne(self):
-        motor.shelfCall(frames[1])
+        motor.shelfCall(1)
 
 class Two(Frame):
     def __init__(self, parent, controller):
@@ -762,7 +765,7 @@ class Two(Frame):
 
     # moves the shelf to this shelf
     def goToShelfTwo(self):
-        motor.shelfCall(frames[2])
+        motor.shelfCall(2)
 
 class Three(Frame):
     def __init__(self, parent, controller):
@@ -920,7 +923,7 @@ class Three(Frame):
     # function to rotate the shelves to the third shelf
     # triggers when the mvoe to shelf button is activated
     def goToShelfThree(self):
-        motor.shelfCall(frames[3])
+        motor.shelfCall(3)
 
 class Four(Frame):
     def __init__(self, parent, controller):
@@ -1064,7 +1067,7 @@ class Four(Frame):
         self.cur_shelf.config(text=f"Current Shelf: {current_shelf}", bg=self.BG_COLOR, fg=self.LABEL_FG)
 
     def goToShelfFour(self):
-        motor.shelfCall(frames[4])
+        motor.shelfCall(4)
 
 class Five(Frame):
     def __init__(self, parent, controller):
@@ -1209,7 +1212,7 @@ class Five(Frame):
         self.cur_shelf.config(bg=self.BG_COLOR, fg=self.LABEL_FG, text=f"Current Shelf: {current_shelf}")
 
     def goToShelfFive(self):
-        motor.shelfCall(frames[5])
+        motor.shelfCall(5)
 
 class Six(Frame):
     def __init__(self, parent, controller):
@@ -1353,7 +1356,7 @@ class Six(Frame):
         self.cur_shelf.config(bg=self.BG_COLOR, fg=self.LABEL_FG, text=f"Current Shelf: {current_shelf}")
 
     def goToShelfSix(self):
-        motor.shelfCall(frames[6])
+        motor.shelfCall(6)
 
 class ManageBarcodes(Frame):
     def __init__(self, parent, controller):
@@ -1643,20 +1646,28 @@ class Settings(Frame):
         self.cur_shelf.grid(row=0, column=3, padx=10, pady=10)
         self.cur_shelf.config(font=button_font)
 
+        self.reset_label = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG)
+        self.reset_label.grid(row=2, column=3, padx=10, pady=10)
+        self.reset_label.config(font=listbox_font)
+
         self.instructions = Button(self, bg=self.BUTTON_BG, fg="black", command=lambda: self.changeInstructions())
         self.instructions.grid(row=5, column=0, padx=10, pady=10)
         if (instructions[8]):
             self.instructions.config(text="HIDE INSTRUCTIONS", font=button_font)
+            self.reset_label.config(text="Click here to reset the\ncurrent shelf if the labeled\ncurrent shelf is not correct.\nPress update to see the change.")
         else:
             self.instructions.config(text="SHOW INSTRUCTIONS", font=button_font)
+            self.instructions.config(text="Reset current shelf.")
 
     def changeInstructions(self):
         if (instructions[8]):
             self.instructions.config(text="SHOW INSTRUCTIONS")
+            self.reset_label.config(text="Reset current shelf.")
             del instructions[8]
             instructions.insert(8, False)
         else:
             self.instructions.config(text="HIDE INSTRUCTIONS")
+            self.reset_label.config(text="Click here to reset the\ncurrent shelf if the labeled\ncurrent shelf is not correct.\nPress update to see the change.")
             del instructions[8]
             instructions.insert(8, True)
 
@@ -1681,6 +1692,7 @@ class Settings(Frame):
         self.edit_field.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
         self.update.config(bg=self.BUTTON_BG)
         self.cur_shelf.config(bg=self.BG_COLOR, fg=self.LABEL_FG, text=f"Current Shelf: {current_shelf}")
+        self.reset_label.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
 
     def editName(self):
         if (instructions[8]):
