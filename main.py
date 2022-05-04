@@ -1658,7 +1658,7 @@ class Settings(Frame):
         self.instructions.grid(row=5, column=0, padx=10, pady=10)
         if (instructions[8]):
             self.instructions.config(text="HIDE\nINSTRUCTIONS", font=button_font)
-            self.reset_label.config(text="Click here to reset the\ncurrent shelf if the labeled\ncurrent shelf is not correct.\nPress update to see the change.")
+            self.reset_label.config(text="Click here to reset\nthe current shelf if\nthe labeled current shelf\nis not correct.\nPress update to\nsee the change.")
         else:
             self.instructions.config(text="SHOW\nINSTRUCTIONS", font=button_font)
             self.instructions.config(text="Reset current shelf.")
