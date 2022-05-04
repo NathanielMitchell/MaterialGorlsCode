@@ -18,26 +18,22 @@ class Motor:
         self.pwmFreq = 1000
     def shelfCall(self, targetShelf):
         global current_shelf
-        time_for_shelf = 8/6
+        time_for_shelf = 1
         difference = abs(current_shelf - targetShelf)
         # if (targetShelf != current_shelf):
         GPIO.output(DIR_PIN_1, True)
         GPIO.output(DIR_PIN_2, False)
-        pi_pwm.ChangeDutyCycle(100)
+        for duty in range (0, 101):
+            pi_pwm.ChangeDutyCycle(duty)
+            sensor.trackShelf()
+            sleep(0.01)
         sleep(time_for_shelf * difference)
-        #     for duty in range (0, 101):
-        #         pi_pwm.ChangeDutyCycle(duty)
-        #         sensor.trackShelf()
-        #         sleep(0.01)
-        #     while (current_shelf != targetShelf):
-        #         sensor.trackShelf() # Placeholder
-        #     for duty in range(100, -1, -1):
-        #         pi_pwm.ChangeDutyCycle(duty)
-        #         if (sensor.getDistance() <= finDist):
-        #             GPIO.output(DIR_PIN_1, False)
-        #             GPIO.output(DIR_PIN_2, False)
-        #         sleep(0.01)
-        pi_pwm.ChangeDutyCycle(0)
+        for duty in range(100, -1, -1):
+            pi_pwm.ChangeDutyCycle(duty)
+            if (sensor.getDistance() <= finDist):
+                GPIO.output(DIR_PIN_1, False)
+                GPIO.output(DIR_PIN_2, False)
+            sleep(0.01)
         GPIO.output(DIR_PIN_1, False)
         GPIO.output(DIR_PIN_2, False)
         current_shelf = targetShelf
@@ -1257,7 +1253,7 @@ class Six(Frame):
         self.home.config(font=button_font)
 
         self.items_label = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG, text=f"Items on {frames[6]}: ")
-        self.items_label.grid(row=0, column=2, columnspan=2, padx=10, pady=10)
+        self.items_label.grid(row=0, column=2, padx=10, pady=10)
         self.items_label.config(font=button_font)
 
         self.items = Listbox(self, fg=self.LABEL_FG)
