@@ -91,6 +91,7 @@ class UltraSonic:
         return distance
 
     def trackShelf(self):
+        global current_shelf
         distance = sensor.getDistance() * correctionFactor
         distance = round(distance, 4)
         difference = distance - sensor.previousMeasurement
