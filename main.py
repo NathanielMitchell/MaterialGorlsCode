@@ -1671,7 +1671,7 @@ class Settings(Frame):
             instructions.insert(8, False)
         else:
             self.instructions.config(text="HIDE\nINSTRUCTIONS")
-            self.reset_label.config(text="Click here to reset the\ncurrent shelf if the labeled\ncurrent shelf is not correct.\nPress update to see the change.")
+            self.reset_label.config(text="Click here to reset\nthe current shelf if\nthe labeled current shelf\nis not correct.\nPress update to\nsee the change.")
             del instructions[8]
             instructions.insert(8, True)
 
@@ -1744,14 +1744,14 @@ class Settings(Frame):
             self.shelf_scroll.insert(i, frames[i])
 
 # constants
-SETTLE_TIME = 2
-CALIBRATIONS = 5
+# SETTLE_TIME = 2
+# CALIBRATIONS = 5
 
-CALIBRATION_DELAY = 1
+# CALIBRATION_DELAY = 1
 
-TRIGGER_TIME = 0.00001
+# TRIGGER_TIME = 0.00001
 
-SPEED_OF_SOUND = 343
+# SPEED_OF_SOUND = 343
 
 # pin sets
 GPIO.setmode(GPIO.BCM)
@@ -1764,22 +1764,22 @@ DIR_PIN_1 = 26
 DIR_PIN_2 = 25
 
 # pin setups
-GPIO.setup(TRIG, GPIO.OUT)
-GPIO.setup(ECHO, GPIO.IN)
+# GPIO.setup(TRIG, GPIO.OUT)
+# GPIO.setup(ECHO, GPIO.IN)
 GPIO.setwarnings(False)			#disable warnings
 GPIO.setup(MOTOR_SIGNAL,GPIO.OUT)
 GPIO.setup(DIR_PIN_1, GPIO.OUT, initial = GPIO.LOW)
 GPIO.setup(DIR_PIN_2, GPIO.OUT, initial = GPIO.LOW)
 
-sensor = UltraSonic()
-correctionFactor = sensor.calibrate()
+# sensor = UltraSonic()
+# correctionFactor = sensor.calibrate()
 motor = Motor()
 pi_pwm = GPIO.PWM(MOTOR_SIGNAL, 1000)		#create PWM instance with frequency
 pi_pwm.start(0)				#start PWM of required Duty Cycle 
 
-finDist = sensor.calibrationDistance
+# finDist = sensor.calibrationDistance
 
-sensor.calibrate()
+# sensor.calibrate()
 
 app = ShelfApp()
 app.title("The Shelfinator")
