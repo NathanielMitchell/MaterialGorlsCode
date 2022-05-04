@@ -1657,20 +1657,20 @@ class Settings(Frame):
         self.instructions = Button(self, bg=self.BUTTON_BG, fg="black", command=lambda: self.changeInstructions())
         self.instructions.grid(row=5, column=0, padx=10, pady=10)
         if (instructions[8]):
-            self.instructions.config(text="HIDE INSTRUCTIONS", font=button_font)
+            self.instructions.config(text="HIDE\nINSTRUCTIONS", font=button_font)
             self.reset_label.config(text="Click here to reset the\ncurrent shelf if the labeled\ncurrent shelf is not correct.\nPress update to see the change.")
         else:
-            self.instructions.config(text="SHOW INSTRUCTIONS", font=button_font)
+            self.instructions.config(text="SHOW\nINSTRUCTIONS", font=button_font)
             self.instructions.config(text="Reset current shelf.")
 
     def changeInstructions(self):
         if (instructions[8]):
-            self.instructions.config(text="SHOW INSTRUCTIONS")
+            self.instructions.config(text="SHOW\nINSTRUCTIONS")
             self.reset_label.config(text="Reset current shelf.")
             del instructions[8]
             instructions.insert(8, False)
         else:
-            self.instructions.config(text="HIDE INSTRUCTIONS")
+            self.instructions.config(text="HIDE\nINSTRUCTIONS")
             self.reset_label.config(text="Click here to reset the\ncurrent shelf if the labeled\ncurrent shelf is not correct.\nPress update to see the change.")
             del instructions[8]
             instructions.insert(8, True)
