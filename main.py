@@ -1805,7 +1805,7 @@ pi_pwm.start(0)				#start PWM of required Duty Cycle
 
 app = ShelfApp()
 app.title("The Shelfinator")
-app.attributes("-fullscreen", True)
+# app.attributes("-fullscreen", True)
 app.mainloop()
 with open ("pickled_shelf_one.pickle", "wb") as f:
     pickle.dump(shelf_one_items, f)
