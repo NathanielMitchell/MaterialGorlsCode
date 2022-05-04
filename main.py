@@ -22,86 +22,84 @@ class Motor:
         GPIO.output(DIR_PIN_2, False)
         for duty in range (0, 101):
             pi_pwm.ChangeDutyCycle(duty)
-            sensor.trackShelf()
             sleep(0.01)
         sleep(time_for_shelf * difference)
         for duty in range(100, -1, -1):
             pi_pwm.ChangeDutyCycle(duty)
-            if (sensor.getDistance() <= finDist):
-                GPIO.output(DIR_PIN_1, False)
-                GPIO.output(DIR_PIN_2, False)
+            GPIO.output(DIR_PIN_1, False)
+            GPIO.output(DIR_PIN_2, False)
             sleep(0.01)
         GPIO.output(DIR_PIN_1, False)
         GPIO.output(DIR_PIN_2, False)
         current_shelf = targetShelf
 
 # class to initialize and calibrate the ultrasonic sensor
-class UltraSonic:
-    def __init__(self):
-        self.calibrationDistance = 10
-        # the previous measurement is used for determining if a shelf has gone by
-        self.previousMeasurement = self.calibrationDistance
+# class UltraSonic:
+#     def __init__(self):
+#         self.calibrationDistance = 10
+#         # the previous measurement is used for determining if a shelf has gone by
+#         self.previousMeasurement = self.calibrationDistance
 
-        # Calibrates the sensor for proper distance measurments
-    def calibrate(self):
-        print("Calibrating...")
-        print("Place the sensor a known distance away from am object")
-        knownDistance = self.calibrationDistance
-        print("Getting calibration measurements")
-        print("Done.")
-        distanceAverage = 0
+#         # Calibrates the sensor for proper distance measurments
+#     def calibrate(self):
+#         print("Calibrating...")
+#         print("Place the sensor a known distance away from am object")
+#         knownDistance = self.calibrationDistance
+#         print("Getting calibration measurements")
+#         print("Done.")
+#         distanceAverage = 0
         
-        # Compares known distance to average calibration distances
-        # Creates a calibration constant based on this comparison
-        for i in range(CALIBRATIONS):
-            distance = self.getDistance()
-            distanceAverage += distance
-            sleep(CALIBRATION_DELAY)
+#         # Compares known distance to average calibration distances
+#         # Creates a calibration constant based on this comparison
+#         for i in range(CALIBRATIONS):
+#             distance = self.getDistance()
+#             distanceAverage += distance
+#             sleep(CALIBRATION_DELAY)
             
-        distanceAverage /= CALIBRATIONS
+#         distanceAverage /= CALIBRATIONS
         
-        print(f"Average distance is {distanceAverage}")
+#         print(f"Average distance is {distanceAverage}")
         
-        correctionFactor = knownDistance / distanceAverage
+#         correctionFactor = knownDistance / distanceAverage
         
-        print(f"Correction factor is {correctionFactor}")
-        print("")
+#         print(f"Correction factor is {correctionFactor}")
+#         print("")
         
-        return(correctionFactor)
+#         return(correctionFactor)
         
-    # Finds the distance from the US sensor in cm
-    def getDistance(self):
+#     # Finds the distance from the US sensor in cm
+#     def getDistance(self):
 
-        GPIO.output(TRIG, GPIO.HIGH)
-        sleep(TRIGGER_TIME)
-        GPIO.output(TRIG, GPIO.LOW)
+#         GPIO.output(TRIG, GPIO.HIGH)
+#         sleep(TRIGGER_TIME)
+#         GPIO.output(TRIG, GPIO.LOW)
         
-        while (GPIO.input(ECHO) == GPIO.LOW):
-            start = time()
-        while (GPIO.input(ECHO) == GPIO.HIGH):
-            end = time()
+#         while (GPIO.input(ECHO) == GPIO.LOW):
+#             start = time()
+#         while (GPIO.input(ECHO) == GPIO.HIGH):
+#             end = time()
             
-        duration = end - start
+#         duration = end - start
         
-        distance = duration * SPEED_OF_SOUND
+#         distance = duration * SPEED_OF_SOUND
         
-        distance /= 2
-        distance *= 100
+#         distance /= 2
+#         distance *= 100
 
-        return distance
+#         return distance
 
-    def trackShelf(self):
-        global current_shelf
-        distance = sensor.getDistance() * correctionFactor
-        distance = round(distance, 4)
-        difference = distance - sensor.previousMeasurement
-        if (difference > 5):
-            if (current_shelf > 6):
-                current_shelf = 1
-            else:
-                current_shelf += 1
-        current_shelf_label.config(text=f"Current Shelf: {current_shelf}")
-        sensor.previousMeasurement = distance
+#     def trackShelf(self):
+#         global current_shelf
+#         distance = sensor.getDistance() * correctionFactor
+#         distance = round(distance, 4)
+#         difference = distance - sensor.previousMeasurement
+#         if (difference > 5):
+#             if (current_shelf > 6):
+#                 current_shelf = 1
+#             else:
+#                 current_shelf += 1
+#         current_shelf_label.config(text=f"Current Shelf: {current_shelf}")
+#         sensor.previousMeasurement = distance
 
 # set all available color themes in a dictionary
 color_themes = { "red": ["#ffe3e3", "#ffbfbf", "#850000", "#ff0000"], 
@@ -1654,6 +1652,10 @@ class Settings(Frame):
         self.reset_label.grid(row=2, column=3, padx=10, pady=10)
         self.reset_label.config(font=listbox_font)
 
+        self.reset_button = Button(self, bg=self.BUTTON_BG, fg="black", text="RESET")
+        self.reset_button.grid(row=3, column=3, padx=10, pady=10)
+        self.reset_button.config(font=button_font)
+
         self.instructions = Button(self, bg=self.BUTTON_BG, fg="black", command=lambda: self.changeInstructions())
         self.instructions.grid(row=5, column=0, padx=10, pady=10)
         if (instructions[8]):
@@ -1662,7 +1664,6 @@ class Settings(Frame):
         else:
             self.instructions.config(text="SHOW\nINSTRUCTIONS", font=button_font)
             self.instructions.config(text="Reset current shelf.")
-
     def changeInstructions(self):
         if (instructions[8]):
             self.instructions.config(text="SHOW\nINSTRUCTIONS")
