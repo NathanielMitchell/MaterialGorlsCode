@@ -20,11 +20,11 @@ class Motor:
         # if (targetShelf != current_shelf):
         GPIO.output(DIR_PIN_1, True)
         GPIO.output(DIR_PIN_2, False)
-        for duty in range (0, 101):
+        for duty in range (0, 51):
             pi_pwm.ChangeDutyCycle(duty)
             sleep(0.01)
         sleep(time_for_shelf * difference)
-        for duty in range(100, -1, -1):
+        for duty in range(50, -1, -1):
             pi_pwm.ChangeDutyCycle(duty)
             GPIO.output(DIR_PIN_1, False)
             GPIO.output(DIR_PIN_2, False)
@@ -1652,9 +1652,13 @@ class Settings(Frame):
         self.reset_label.grid(row=2, column=3, padx=10, pady=10)
         self.reset_label.config(font=listbox_font)
 
-        self.reset_button = Button(self, bg=self.BUTTON_BG, fg="black", text="RESET")
+        self.reset_button = Button(self, bg=self.BUTTON_BG, fg="black", text="RESET", command=lambda: self.resetCurShelf())
         self.reset_button.grid(row=3, column=3, padx=10, pady=10)
         self.reset_button.config(font=button_font)
+
+        self.current_shelf_button = Button(self, bg=self.BUTTON_BG, fg="black", text="CURRENT SHELF", command=lambda: self.resetCurShelfPart2())
+        self.current_shelf_button.grid_forget()
+        self.current_shelf_button.config(font=button_font)
 
         self.instructions = Button(self, bg=self.BUTTON_BG, fg="black", command=lambda: self.changeInstructions())
         self.instructions.grid(row=5, column=0, padx=10, pady=10)
@@ -1664,6 +1668,18 @@ class Settings(Frame):
         else:
             self.instructions.config(text="SHOW\nINSTRUCTIONS", font=button_font)
             self.instructions.config(text="Reset current shelf.")
+    
+    def resetCurShelf(self):
+        self.edit_label.config(text="Select the correct\nshelf from the list,\nthen press 'CURRENT SHELF'")
+        self.current_shelf_button.grid(row=4, column=0, padx=10, pady=10)
+
+    def resetCurShelfPart2(self):
+        global current_shelf
+        self.edit_label.config(text="")
+        self.current_shelf_button.grid_forget()
+        new_shelf = self.shelf_scroll.get(self.shelf_scroll.curselection())
+        current_shelf = frames.index(new_shelf)
+
     def changeInstructions(self):
         if (instructions[8]):
             self.instructions.config(text="SHOW\nINSTRUCTIONS")
