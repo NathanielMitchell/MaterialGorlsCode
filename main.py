@@ -395,7 +395,6 @@ class Home(Frame):
     # search for items in each list
     # the first list that the item is found in will be the list you're taken to
     def searchItems(self, event):
-        self.update()
         # reset the item not found label to be empty
         self.not_found.config(text="")
         # grab the entry from the search field
@@ -1512,8 +1511,8 @@ class ManageBarcodes(Frame):
 
     def getItemName(self, entry):
         self.new_item = entry.get()
-        self.scan.grid(row=2, column=1, padx=10, pady=10)
-        self.field.grid(row=3, column=1, padx=10, pady=10)
+        self.scan.grid(row=2, column=2, padx=10, pady=10)
+        self.field.grid(row=3, column=2, padx=10, pady=10)
         self.double_barcode.config(text="")
         entry.delete(0, END)
 
