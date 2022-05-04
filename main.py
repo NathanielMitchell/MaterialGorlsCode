@@ -17,6 +17,7 @@ class Motor:
     def __init__(self):
         self.pwmFreq = 1000
     def shelfCall(self, targetShelf):
+        global current_shelf
         time_for_shelf = 8/6
         difference = abs(current_shelf - targetShelf)
         # if (targetShelf != current_shelf):
