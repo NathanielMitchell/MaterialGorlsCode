@@ -1675,10 +1675,13 @@ class Settings(Frame):
 
     def resetCurShelfPart2(self):
         global current_shelf
-        self.edit_label.config(text="")
-        self.current_shelf_button.grid_forget()
-        new_shelf = self.shelf_scroll.get(self.shelf_scroll.curselection())
-        current_shelf = frames.index(new_shelf)
+        try:
+            self.edit_label.config(text="")
+            self.current_shelf_button.grid_forget()
+            new_shelf = self.shelf_scroll.get(self.shelf_scroll.curselection())
+            current_shelf = frames.index(new_shelf)
+        except TclError:
+            self.edit_label.config(text="Select a shelf\nand try again.")
 
     def changeInstructions(self):
         if (instructions[8]):
@@ -1714,6 +1717,8 @@ class Settings(Frame):
         self.update.config(bg=self.BUTTON_BG)
         self.cur_shelf.config(bg=self.BG_COLOR, fg=self.LABEL_FG, text=f"Current Shelf: {current_shelf}")
         self.reset_label.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
+        self.reset_button.config(bg=self.BUTTON_BG)
+        self.current_shelf_button.config(bg=self.BUTTON_BG)
 
     def editName(self):
         if (instructions[8]):
@@ -1800,7 +1805,7 @@ pi_pwm.start(0)				#start PWM of required Duty Cycle
 
 app = ShelfApp()
 app.title("The Shelfinator")
-# app.attributes("-fullscreen", True)
+app.attributes("-fullscreen", True)
 app.mainloop()
 with open ("pickled_shelf_one.pickle", "wb") as f:
     pickle.dump(shelf_one_items, f)
