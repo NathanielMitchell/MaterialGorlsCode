@@ -22,6 +22,7 @@ class Motor:
         # if (targetShelf != current_shelf):
         GPIO.output(DIR_PIN_1, True)
         GPIO.output(DIR_PIN_2, False)
+        pi_pwm.ChangeDutyCycle(100)
         sleep(time_for_shelf * difference)
         #     for duty in range (0, 101):
         #         pi_pwm.ChangeDutyCycle(duty)
@@ -35,6 +36,7 @@ class Motor:
         #             GPIO.output(DIR_PIN_1, False)
         #             GPIO.output(DIR_PIN_2, False)
         #         sleep(0.01)
+        pi_pwm.ChangeDutyCycle(0)
         GPIO.output(DIR_PIN_1, False)
         GPIO.output(DIR_PIN_2, False)
         current_shelf = targetShelf
