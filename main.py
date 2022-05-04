@@ -17,6 +17,7 @@ class Motor:
     def __init__(self):
         self.pwmFreq = 1000
     def shelfCall(self, targetShelf):
+        global current_shelf
         if (targetShelf != current_shelf):
             GPIO.output(DIR_PIN_1, True)
             GPIO.output(DIR_PIN_2, False)
