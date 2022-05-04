@@ -3,6 +3,16 @@ import pickle
 import RPi.GPIO as GPIO
 from time import sleep, time
 
+# initialize the current shelf
+# try:
+#     with open ("current_shelf.pickle", "rb") as f:
+#         current_shelf = pickle.load(f)
+# except FileNotFoundError:
+current_shelf = 1
+
+current_shelf_label = Label(text=f"Current Shelf = {current_shelf}")
+current_shelf_label.grid(row=0, column=0, padx=10, pady=10)
+
 class Motor:
     def __init__(self):
         self.pwmFreq = 1000
@@ -130,17 +140,6 @@ try:
         frames = pickle.load(f)
 except FileNotFoundError:
     frames = ["Home Page", "Shelf One", "Shelf Two", "Shelf Three", "Shelf Four", "Shelf Five", "Shelf Six", "Manage Barcodes", "Settings"]
-
-
-# initialize the current shelf
-# try:
-#     with open ("current_shelf.pickle", "rb") as f:
-#         current_shelf = pickle.load(f)
-# except FileNotFoundError:
-current_shelf = 1
-
-current_shelf_label = Label(text=f"Current Shelf = {current_shelf}")
-current_shelf_label.grid(row=0, column=0, padx=10, pady=10)
 
 # controls the framework and allows for switching between frames
 class ShelfApp(Tk):
