@@ -17,24 +17,27 @@ class Motor:
     def __init__(self):
         self.pwmFreq = 1000
     def shelfCall(self, targetShelf):
-        global current_shelf
-        if (targetShelf != current_shelf):
-            GPIO.output(DIR_PIN_1, True)
-            GPIO.output(DIR_PIN_2, False)
-            for duty in range (0, 101):
-                pi_pwm.ChangeDutyCycle(duty)
-                sensor.trackShelf()
-                sleep(0.01)
-            while (current_shelf != targetShelf):
-                sensor.trackShelf() # Placeholder
-            for duty in range(100, -1, -1):
-                pi_pwm.ChangeDutyCycle(duty)
-                if (sensor.getDistance() <= finDist):
-                    GPIO.output(DIR_PIN_1, False)
-                    GPIO.output(DIR_PIN_2, False)
-                sleep(0.01)
-            GPIO.output(DIR_PIN_1, False)
-            GPIO.output(DIR_PIN_2, False)
+        time_for_shelf = 8/6
+        difference = abs(current_shelf - targetShelf)
+        # if (targetShelf != current_shelf):
+        GPIO.output(DIR_PIN_1, True)
+        GPIO.output(DIR_PIN_2, False)
+        sleep(time_for_shelf * difference)
+        #     for duty in range (0, 101):
+        #         pi_pwm.ChangeDutyCycle(duty)
+        #         sensor.trackShelf()
+        #         sleep(0.01)
+        #     while (current_shelf != targetShelf):
+        #         sensor.trackShelf() # Placeholder
+        #     for duty in range(100, -1, -1):
+        #         pi_pwm.ChangeDutyCycle(duty)
+        #         if (sensor.getDistance() <= finDist):
+        #             GPIO.output(DIR_PIN_1, False)
+        #             GPIO.output(DIR_PIN_2, False)
+        #         sleep(0.01)
+        GPIO.output(DIR_PIN_1, False)
+        GPIO.output(DIR_PIN_2, False)
+        current_shelf = targetShelf
 
 # class to initialize and calibrate the ultrasonic sensor
 class UltraSonic:
