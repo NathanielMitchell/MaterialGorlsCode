@@ -4,14 +4,11 @@ import RPi.GPIO as GPIO
 from time import sleep, time
 
 # initialize the current shelf
-# try:
-#     with open ("current_shelf.pickle", "rb") as f:
-#         current_shelf = pickle.load(f)
-# except FileNotFoundError:
-current_shelf = 1
-
-current_shelf_label = Label(text=f"Current Shelf = {current_shelf}")
-current_shelf_label.grid(row=0, column=0, padx=10, pady=10)
+try:
+    with open ("current_shelf.pickle", "rb") as f:
+        current_shelf = pickle.load(f)
+except FileNotFoundError:
+    current_shelf = 1
 
 class Motor:
     def __init__(self):
@@ -557,7 +554,7 @@ class One(Frame):
 
         # label to show current shelf
         self.cur_shelf = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG, text=f"Current Shelf: {current_shelf}")
-        self.cur_shelf.grid(row=0, column=3, padx=10, pady=10)
+        self.cur_shelf.grid(row=6, column=0, padx=10, pady=10)
         self.cur_shelf.config(font=button_font)
 
         # button to show or hide insturctions
@@ -712,7 +709,7 @@ class Two(Frame):
 
         # label to show current shelf
         self.cur_shelf = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG, text=f"Current Shelf: {current_shelf}")
-        self.cur_shelf.grid(row=0, column=3, padx=10, pady=10)
+        self.cur_shelf.grid(row=6, column=0, padx=10, pady=10)
         self.cur_shelf.config(font=button_font)
 
         # button to show or hide insturctions
@@ -868,7 +865,7 @@ class Three(Frame):
 
         # label to show current shelf
         self.cur_shelf = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG, text=f"Current Shelf: {current_shelf}")
-        self.cur_shelf.grid(row=0, column=3, padx=10, pady=10)
+        self.cur_shelf.grid(row=6, column=0, padx=10, pady=10)
         self.cur_shelf.config(font=button_font)
 
         # button to show or hide insturctions
@@ -1016,7 +1013,7 @@ class Four(Frame):
 
         # label to show current shelf
         self.cur_shelf = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG, text=f"Current Shelf: {current_shelf}")
-        self.cur_shelf.grid(row=0, column=3, padx=10, pady=10)
+        self.cur_shelf.grid(row=6, column=0, padx=10, pady=10)
         self.cur_shelf.config(font=button_font)
 
         # button to show or hide insturctions
@@ -1160,7 +1157,7 @@ class Five(Frame):
 
         # label to show current shelf
         self.cur_shelf = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG, text=f"Current Shelf: {current_shelf}")
-        self.cur_shelf.grid(row=0, column=3, padx=10, pady=10)
+        self.cur_shelf.grid(row=6, column=0, padx=10, pady=10)
         self.cur_shelf.config(font=button_font)
 
         # button to show or hide insturctions
@@ -1305,7 +1302,7 @@ class Six(Frame):
 
         # label to show current shelf
         self.cur_shelf = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG, text=f"Current Shelf: {current_shelf}")
-        self.cur_shelf.grid(row=0, column=3, padx=10, pady=10)
+        self.cur_shelf.grid(row=6, column=0, padx=10, pady=10)
         self.cur_shelf.config(font=button_font)
 
         # button to show or hide insturctions
