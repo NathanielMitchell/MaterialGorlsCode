@@ -260,9 +260,9 @@ class Home(Frame):
         Frame.configure(self, bg=self.BG_COLOR)
         
         # set fonts
-        self.title_font = ("Cooper Black", 30)
-        button_font = ("Century Gothic", 16, "bold")
-        listbox_font = ("Century Gothic", 14)
+        self.title_font = ("Cooper Black", 20)
+        button_font = ("Century Gothic", 12, "bold")
+        listbox_font = ("Century Gothic", 10)
 
         # create a title
         self.label = Label(self, text=f"Home Page")
