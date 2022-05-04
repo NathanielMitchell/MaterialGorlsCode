@@ -4,89 +4,93 @@ import RPi.GPIO as GPIO
 from time import sleep, time
 
 class Motor:
-	def __init__(self):
-		self.pwmFreq = 1000
-	def shelfCall(self, targetShelf):
-		if (targetShelf != current_shelf):
-			GPIO.output(DIR_PIN_1, True)
-			GPIO.output(DIR_PIN_2, False)
-			for duty in range (0, 101):
-				pi_pwm.ChangeDutyCycle(duty)
-				sensor.trackShelf()
-				sleep(0.01)
-			while (current_shelf != targetShelf):
-				sensor.trackShelf() # Placeholder
-			for duty in range(100, -1, -1):
-				pi_pwm.ChangeDutyCycle(duty)
-				if (sensor.getDistance() <= finDist):
-					GPIO.output(DIR_PIN_1, False)
-					GPIO.output(DIR_PIN_2, False)
-				sleep(0.01)
-			GPIO.output(DIR_PIN_1, False)
-			GPIO.output(DIR_PIN_2, False)
+    def __init__(self):
+        self.pwmFreq = 1000
+    def shelfCall(self, targetShelf):
+        if (targetShelf != current_shelf):
+            GPIO.output(DIR_PIN_1, True)
+            GPIO.output(DIR_PIN_2, False)
+            for duty in range (0, 101):
+                pi_pwm.ChangeDutyCycle(duty)
+                sensor.trackShelf()
+                sleep(0.01)
+            while (current_shelf != targetShelf):
+                sensor.trackShelf() # Placeholder
+            for duty in range(100, -1, -1):
+                pi_pwm.ChangeDutyCycle(duty)
+                if (sensor.getDistance() <= finDist):
+                    GPIO.output(DIR_PIN_1, False)
+                    GPIO.output(DIR_PIN_2, False)
+                sleep(0.01)
+            GPIO.output(DIR_PIN_1, False)
+            GPIO.output(DIR_PIN_2, False)
 
 # class to initialize and calibrate the ultrasonic sensor
 class UltraSonic:
-	def __init__(self):
-		self.calibrationDistance = 10
-		# the previous measurement is used for determining if a shelf has gone by
-		self.previousMeasurement = self.calibrationDistance
+    def __init__(self):
+        self.calibrationDistance = 10
+        # the previous measurement is used for determining if a shelf has gone by
+        self.previousMeasurement = self.calibrationDistance
 
         # Calibrates the sensor for proper distance measurments
-	def calibrate(self):
-		print("Calibrating...")
-		print("Place the sensor a known distance away from am object")
-		knownDistance = self.calibrationDistance
-		print("Getting calibration measurements")
-		print("Done.")
-		distanceAverage = 0
-		
-		# Compares known distance to average calibration distances
-		# Creates a calibration constant based on this comparison
-		for i in range(CALIBRATIONS):
-			distance = self.getDistance()
-			distanceAverage += distance
-			sleep(CALIBRATION_DELAY)
-			
-		distanceAverage /= CALIBRATIONS
-		
-		print(f"Average distance is {distanceAverage}")
-		
-		correctionFactor = knownDistance / distanceAverage
-		
-		print(f"Correction factor is {correctionFactor}")
-		print("")
-		
-		return(correctionFactor)
-		
-	# Finds the distance from the US sensor in cm
-	def getDistance(self):
+    def calibrate(self):
+        print("Calibrating...")
+        print("Place the sensor a known distance away from am object")
+        knownDistance = self.calibrationDistance
+        print("Getting calibration measurements")
+        print("Done.")
+        distanceAverage = 0
+        
+        # Compares known distance to average calibration distances
+        # Creates a calibration constant based on this comparison
+        for i in range(CALIBRATIONS):
+            distance = self.getDistance()
+            distanceAverage += distance
+            sleep(CALIBRATION_DELAY)
+            
+        distanceAverage /= CALIBRATIONS
+        
+        print(f"Average distance is {distanceAverage}")
+        
+        correctionFactor = knownDistance / distanceAverage
+        
+        print(f"Correction factor is {correctionFactor}")
+        print("")
+        
+        return(correctionFactor)
+        
+    # Finds the distance from the US sensor in cm
+    def getDistance(self):
 
-		GPIO.output(TRIG, GPIO.HIGH)
-		sleep(TRIGGER_TIME)
-		GPIO.output(TRIG, GPIO.LOW)
-		
-		while (GPIO.input(ECHO) == GPIO.LOW):
-			start = time()
-		while (GPIO.input(ECHO) == GPIO.HIGH):
-			end = time()
-			
-		duration = end - start
-		
-		distance = duration * SPEED_OF_SOUND
-		
-		distance /= 2
-		distance *= 100
-		
-		return distance
-	
-	def trackShelf(self):
-		distance = sensor.getDistance() * correctionFactor
-		distance = round(distance, 4)
-		difference = distance - sensor.previousMeasurement
-		if (difference > 2):
-			"ShelfNumber++"
-		sensor.previousMeasurement = distance
+        GPIO.output(TRIG, GPIO.HIGH)
+        sleep(TRIGGER_TIME)
+        GPIO.output(TRIG, GPIO.LOW)
+        
+        while (GPIO.input(ECHO) == GPIO.LOW):
+            start = time()
+        while (GPIO.input(ECHO) == GPIO.HIGH):
+            end = time()
+            
+        duration = end - start
+        
+        distance = duration * SPEED_OF_SOUND
+        
+        distance /= 2
+        distance *= 100
+
+        return distance
+
+    def trackShelf(self):
+        distance = sensor.getDistance() * correctionFactor
+        distance = round(distance, 4)
+        difference = distance - sensor.previousMeasurement
+        if (difference > 5):
+            if (current_shelf > 6):
+                current_shelf = 1
+            else:
+                current_shelf += 1
+        current_shelf_label.config(text=f"Current Shelf: {current_shelf}")
+        sensor.previousMeasurement = distance
 
 # set all available color themes in a dictionary
 color_themes = { "red": ["#ffe3e3", "#ffbfbf", "#850000", "#ff0000"], 
@@ -318,7 +322,7 @@ class Home(Frame):
         self.update_label.config(font=listbox_font)
 
         self.shelf_instructions = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG)
-        self.shelf_instructions.grid(row=0, rowspan=2, column=3, padx=10, pady=10)
+        self.shelf_instructions.grid(row=1, rowspan=2, column=3, padx=10, pady=10)
         self.shelf_instructions.config(font=listbox_font)
 
         # label to show current shelf
@@ -327,7 +331,7 @@ class Home(Frame):
         self.cur_shelf.config(font=button_font)
 
         self.instructions = Button(self, bg=self.BUTTON_BG, fg="black", command=lambda: self.hideInstructions())
-        self.instructions.grid(row=2, column=3, padx=10, pady=10)
+        self.instructions.grid(row=3, column=3, padx=10, pady=10)
         if (instructions[0]):
             self.instructions.config(font=button_font, text="HIDE INSTRUCTIONS")
             self.update_label.config(text="Press update to refresh\ncolors and titles.")
@@ -473,9 +477,9 @@ class One(Frame):
         Frame.configure(self, bg=self.BG_COLOR)
         
         # set fonts
-        self.title_font = ("Cooper Black", 30)
-        button_font = ("Century Gothic", 16, "bold")
-        listbox_font = ("Century Gothic", 14)
+        self.title_font = ("Cooper Black", 20)
+        button_font = ("Century Gothic", 12, "bold")
+        listbox_font = ("Century Gothic", 10)
 
         # label for title of the shelf
         self.title = Label(self, bg=self.BG_COLOR, fg=self.TITLE_FG, text=frames[1])
@@ -627,9 +631,9 @@ class Two(Frame):
         Frame.configure(self, bg=self.BG_COLOR)
         
         # set fonts
-        self.title_font = ("Cooper Black", 30)
-        button_font = ("Century Gothic", 16, "bold")
-        listbox_font = ("Century Gothic", 14)
+        self.title_font = ("Cooper Black", 20)
+        button_font = ("Century Gothic", 12, "bold")
+        listbox_font = ("Century Gothic", 10)
 
         # title of the current shelf
         self.title = Label(self, bg=self.BG_COLOR, fg=self.TITLE_FG, text=f"{frames[2]}")
@@ -782,9 +786,9 @@ class Three(Frame):
         Frame.configure(self, bg=self.BG_COLOR)
         
         # set fonts
-        self.title_font = ("Cooper Black", 30)
-        button_font = ("Century Gothic", 16, "bold")
-        listbox_font = ("Century Gothic", 14)
+        self.title_font = ("Cooper Black", 20)
+        button_font = ("Century Gothic", 12, "bold")
+        listbox_font = ("Century Gothic", 10)
 
         # sets the title to the current title of the shelf
         self.title = Label(self, bg=self.BG_COLOR, fg=self.TITLE_FG, text=f"{frames[3]}")
@@ -940,9 +944,9 @@ class Four(Frame):
         Frame.configure(self, bg=self.BG_COLOR)
         
         # set fonts
-        self.title_font = ("Cooper Black", 30)
-        button_font = ("Century Gothic", 16, "bold")
-        listbox_font = ("Century Gothic", 14)
+        self.title_font = ("Cooper Black", 20)
+        button_font = ("Century Gothic", 12, "bold")
+        listbox_font = ("Century Gothic", 10)
 
         self.title = Label(self, bg=self.BG_COLOR, fg=self.TITLE_FG, text=f"{frames[4]}")
         self.title.grid(row=0, column=0, padx=10, pady=10)
@@ -1084,9 +1088,9 @@ class Five(Frame):
         Frame.configure(self, bg=self.BG_COLOR)
         
         # set fonts
-        self.title_font = ("Cooper Black", 30)
-        button_font = ("Century Gothic", 16, "bold")
-        listbox_font = ("Century Gothic", 14)
+        self.title_font = ("Cooper Black", 20)
+        button_font = ("Century Gothic", 12, "bold")
+        listbox_font = ("Century Gothic", 10)
 
         self.title = Label(self, bg=self.BG_COLOR, fg=self.TITLE_FG, text=f"{frames[5]}")
         self.title.grid(row=0, column=0, padx=10, pady=10)
@@ -1229,9 +1233,9 @@ class Six(Frame):
         Frame.configure(self, bg=self.BG_COLOR)
         
         # set fonts
-        self.title_font = ("Cooper Black", 30)
-        button_font = ("Century Gothic", 16, "bold")
-        listbox_font = ("Century Gothic", 14)
+        self.title_font = ("Cooper Black", 20)
+        button_font = ("Century Gothic", 12, "bold")
+        listbox_font = ("Century Gothic", 10)
 
         self.title = Label(self, bg=self.BG_COLOR, fg=self.TITLE_FG, text=f"{frames[6]}")
         self.title.grid(row=0, column=0, padx=10, pady=10)
@@ -1373,9 +1377,9 @@ class ManageBarcodes(Frame):
         Frame.configure(self, bg=self.BG_COLOR)
         
         # set fonts
-        self.title_font = ("Cooper Black", 30)
-        button_font = ("Century Gothic", 16, "bold")
-        listbox_font = ("Century Gothic", 14)
+        self.title_font = ("Cooper Black", 20)
+        button_font = ("Century Gothic", 12, "bold")
+        listbox_font = ("Century Gothic", 10)
 
         self.title = Label(self, text=f"{frames[7]}", bg=self.BG_COLOR, fg=self.TITLE_FG)
         self.title.grid(row=0, column=0, padx=10, pady=10)
@@ -1579,9 +1583,9 @@ class Settings(Frame):
         Frame.configure(self, bg=self.BG_COLOR)
         
         # set fonts
-        self.title_font = ("Cooper Black", 30)
-        button_font = ("Century Gothic", 16, "bold")
-        listbox_font = ("Century Gothic", 14)
+        self.title_font = ("Cooper Black", 20)
+        button_font = ("Century Gothic", 12, "bold")
+        listbox_font = ("Century Gothic", 10)
 
         self.title = Label(self, text=f"{frames[8]}", bg=self.BG_COLOR, fg=self.TITLE_FG)
         self.title.grid(row=0, column=0, padx=10, pady=10)
