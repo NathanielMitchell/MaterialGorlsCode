@@ -15,23 +15,58 @@ class Motor:
         self.pwmFreq = 1000
     def shelfCall(self, targetShelf):
         global current_shelf
-        time_for_shelf = 1
-        difference = abs(current_shelf - targetShelf)
-        # if (targetShelf != current_shelf):
-        GPIO.output(DIR_PIN_1, True)
-        GPIO.output(DIR_PIN_2, False)
-        for duty in range (0, 51):
-            pi_pwm.ChangeDutyCycle(duty)
-            sleep(0.01)
-        sleep(time_for_shelf * difference)
-        for duty in range(50, -1, -1):
-            pi_pwm.ChangeDutyCycle(duty)
-            GPIO.output(DIR_PIN_1, False)
-            GPIO.output(DIR_PIN_2, False)
-            sleep(0.01)
-        GPIO.output(DIR_PIN_1, False)
-        GPIO.output(DIR_PIN_2, False)
-        current_shelf = targetShelf
+        time_for_shelf = 1.85
+        backwards_count = 0
+        shelf_bvar = current_shelf
+        while (shelf_bvar != targetShelf):
+            if (shelf_bvar == 1):
+                shelf_bvar = 6
+            else:
+                shelf_bvar -= 1
+            backwards_count += 1
+        print (backwards_count)
+        forwards_count = 0
+        shelf_fvar = current_shelf
+        while (shelf_fvar != targetShelf):
+            if (shelf_fvar == 6):
+                shelf_fvar = 1
+            else:
+                shelf_fvar += 1
+            forwards_count += 1
+        print(forwards_count)
+        if (backwards_count < forwards_count):
+            if (targetShelf != current_shelf):
+                GPIO.output(DIR_PIN_1, False)
+                GPIO.output(DIR_PIN_2, True)
+                for duty in range (0, 51):
+                    pi_pwm.ChangeDutyCycle(duty)
+                    sleep(0.01)
+                sleep(time_for_shelf * backwards_count)
+                for duty in range(50, -1, -1):
+                    pi_pwm.ChangeDutyCycle(duty)
+                    GPIO.output(DIR_PIN_1, False)
+                    GPIO.output(DIR_PIN_2, False)
+                    sleep(0.01)
+                GPIO.output(DIR_PIN_1, False)
+                GPIO.output(DIR_PIN_2, False)
+                current_shelf = targetShelf
+
+        else:
+            if (targetShelf != current_shelf):
+                GPIO.output(DIR_PIN_1, True)
+                GPIO.output(DIR_PIN_2, False)
+                for duty in range (0, 51):
+                    pi_pwm.ChangeDutyCycle(duty)
+                    sleep(0.01)
+                sleep(time_for_shelf * forwards_count)
+                for duty in range(50, -1, -1):
+                    pi_pwm.ChangeDutyCycle(duty)
+                    GPIO.output(DIR_PIN_1, False)
+                    GPIO.output(DIR_PIN_2, False)
+                    sleep(0.01)
+                GPIO.output(DIR_PIN_1, False)
+                GPIO.output(DIR_PIN_2, False)
+                current_shelf = targetShelf
 
 # class to initialize and calibrate the ultrasonic sensor
 # class UltraSonic:
@@ -195,7 +230,7 @@ class ItemList():
         else:
             item = entry.get()
         # append the text from the entry field or the item stored with the barcode to the list of shelf items
-        self.items.append(item.lower())
+        self.items.append(item.lower().strip())
         # delete everything out of the list box to reset it
         label.delete(0, END)
         # put everything back in the list box
@@ -324,7 +359,7 @@ class Home(Frame):
         self.shelf_instructions.config(font=listbox_font)
 
         # label to show current shelf
-        self.cur_shelf = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG, text=f"Current Shelf: {current_shelf}")
+        self.cur_shelf = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG, text=f"Current Shelf: {frames[current_shelf]}")
         self.cur_shelf.grid(row=0, column=3, padx=10, pady=10)
         self.cur_shelf.config(font=button_font)
 
@@ -390,7 +425,10 @@ class Home(Frame):
         self.not_found.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
         self.field.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
         self.update.config(bg=self.BUTTON_BG)
-        self.cur_shelf.config(bg=self.BG_COLOR, fg=self.LABEL_FG, text=f"Current Shelf: {current_shelf}")
+        self.cur_shelf.config(bg=self.BG_COLOR, fg=self.LABEL_FG, text=f"Current Shelf: {frames[current_shelf]}")
+        self.update_label.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
+        self.instructions.config(bg=self.BUTTON_BG)
+        self.shelf_instructions.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
 
     # search for items in each list
     # the first list that the item is found in will be the list you're taken to
@@ -403,25 +441,25 @@ class Home(Frame):
         if (barcode in barcodes):
             word = barcodes[barcode]
              # exit if the word is quit
-            if (word.lower() == "quit"):
+            if (word.lower().strip() == "quit"):
                 app.destroy()
             # check the shelf for each item and clear the field
-            elif (word.lower() in shelf_one_items.items):
+            elif (word.lower().strip() in shelf_one_items.items):
                 self.controller.showFrame(One)
                 self.field.delete(0, END)
-            elif (word.lower() in shelf_two_items.items):
+            elif (word.lower().strip() in shelf_two_items.items):
                 self.controller.showFrame(Two)
                 self.field.delete(0, END)
-            elif (word.lower() in shelf_three_items.items):
+            elif (word.lower().strip() in shelf_three_items.items):
                 self.controller.showFrame(Three)
                 self.field.delete(0, END)
-            elif (word.lower() in shelf_four_items.items):
+            elif (word.lower().strip() in shelf_four_items.items):
                 self.controller.showFrame(Four)
                 self.field.delete(0, END)
-            elif (word.lower() in shelf_five_items.items):
+            elif (word.lower().strip() in shelf_five_items.items):
                 self.controller.showFrame(Five)
                 self.field.delete(0, END)
-            elif (word.lower() in shelf_six_items.items):
+            elif (word.lower().strip() in shelf_six_items.items):
                 self.controller.showFrame(Six)
                 self.field.delete(0, END)
             else:
@@ -434,25 +472,25 @@ class Home(Frame):
         else:
             word = self.field.get()
             # exit if the word is quit
-            if (word.lower() == "quit"):
+            if (word.lower().strip() == "quit"):
                 app.destroy()
             # check the shelf for each item and clear the field
-            elif (word.lower() in shelf_one_items.items):
+            elif (word.lower().strip() in shelf_one_items.items):
                 self.controller.showFrame(One)
                 self.field.delete(0, END)
-            elif (word.lower() in shelf_two_items.items):
+            elif (word.lower().strip() in shelf_two_items.items):
                 self.controller.showFrame(Two)
                 self.field.delete(0, END)
-            elif (word.lower() in shelf_three_items.items):
+            elif (word.lower().strip() in shelf_three_items.items):
                 self.controller.showFrame(Three)
                 self.field.delete(0, END)
-            elif (word.lower() in shelf_four_items.items):
+            elif (word.lower().strip() in shelf_four_items.items):
                 self.controller.showFrame(Four)
                 self.field.delete(0, END)
-            elif (word.lower() in shelf_five_items.items):
+            elif (word.lower().strip() in shelf_five_items.items):
                 self.controller.showFrame(Five)
                 self.field.delete(0, END)
-            elif (word.lower() in shelf_six_items.items):
+            elif (word.lower().strip() in shelf_six_items.items):
                 self.controller.showFrame(Six)
                 self.field.delete(0, END)
             else:
@@ -523,11 +561,11 @@ class One(Frame):
         self.grab.grid(row=5, column=2, padx=10, pady=10)
         self.grab.config(font=button_font)
 
-        # adds a scrollbar to the listbox of items on the shelf
-        scroll = Scrollbar(self)
-        scroll.grid(row=1, column=2)
-        self.items.config(yscrollcommand=scroll.set)
-        scroll.config(command=self.items.yview)
+        # # adds a scrollbar to the listbox of items on the shelf
+        # scroll = Scrollbar(self)
+        # scroll.grid(row=1, column=2)
+        # self.items.config(yscrollcommand=scroll.set)
+        # scroll.config(command=self.items.yview)
 
         # goes to shelf one
         self.move_to_shelf = Button(self, bg=self.BUTTON_BG, fg="black", text="Go to Shelf One", command=lambda: self.goToShelfOne())
@@ -550,7 +588,7 @@ class One(Frame):
         self.remove_error.config(font=listbox_font)
 
         # label to show current shelf
-        self.cur_shelf = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG, text=f"Current Shelf: {current_shelf}")
+        self.cur_shelf = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG, text=f"Current Shelf: {frames[current_shelf]}")
         self.cur_shelf.grid(row=6, column=0, padx=10, pady=10)
         self.cur_shelf.config(font=button_font)
 
@@ -607,7 +645,7 @@ class One(Frame):
         self.update_label.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
         self.instructions.config(bg=self.BUTTON_BG)
         self.remove_error.config(bg=self.BG_COLOR)
-        self.cur_shelf.config(text=f"Current Shelf: {current_shelf}", bg=self.BG_COLOR, fg=self.LABEL_FG)
+        self.cur_shelf.config(text=f"Current Shelf: {frames[current_shelf]}", bg=self.BG_COLOR, fg=self.LABEL_FG)
 
     # code to move to shelf one
     def goToShelfOne(self):
@@ -667,11 +705,11 @@ class Two(Frame):
         self.grab.grid(row=5, column=2, padx=10, pady=10)
         self.grab.config(font=button_font)
 
-        # adds a scrollbar to the list of items
-        scroll = Scrollbar(self)
-        scroll.grid(row=1, column=2)
-        self.items.config(yscrollcommand=scroll.set)
-        scroll.config(command=self.items.yview)
+        # # adds a scrollbar to the list of items
+        # scroll = Scrollbar(self)
+        # scroll.grid(row=1, column=2)
+        # self.items.config(yscrollcommand=scroll.set)
+        # scroll.config(command=self.items.yview)
 
         # button to have the shelf code move to the correct shelf
         self.move_to_shelf = Button(self, bg=self.BUTTON_BG, fg="black", text="Go to Shelf Two", command=lambda: self.goToShelfTwo())
@@ -705,7 +743,7 @@ class Two(Frame):
         self.remove_error.config(font=listbox_font)
 
         # label to show current shelf
-        self.cur_shelf = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG, text=f"Current Shelf: {current_shelf}")
+        self.cur_shelf = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG, text=f"Current Shelf: {frames[current_shelf]}")
         self.cur_shelf.grid(row=6, column=0, padx=10, pady=10)
         self.cur_shelf.config(font=button_font)
 
@@ -762,7 +800,7 @@ class Two(Frame):
         self.update_label.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
         self.instructions.config(bg=self.BUTTON_BG)
         self.remove_error.config(bg=self.BG_COLOR)
-        self.cur_shelf.config(text=f"Current Shelf: {current_shelf}", bg=self.BG_COLOR, fg=self.LABEL_FG)
+        self.cur_shelf.config(text=f"Current Shelf: {frames[current_shelf]}", bg=self.BG_COLOR, fg=self.LABEL_FG)
 
     # moves the shelf to this shelf
     def goToShelfTwo(self):
@@ -825,11 +863,11 @@ class Three(Frame):
         self.grab.grid(row=5, column=2, padx=10, pady=10)
         self.grab.config(font=button_font)
 
-        # bar to scroll through the listbox
-        scroll = Scrollbar(self)
-        scroll.grid(row=1, column=2)
-        self.items.config(yscrollcommand=scroll.set)
-        scroll.config(command=self.items.yview)
+        # # bar to scroll through the listbox
+        # scroll = Scrollbar(self)
+        # scroll.grid(row=1, column=2)
+        # self.items.config(yscrollcommand=scroll.set)
+        # scroll.config(command=self.items.yview)
 
         # button to have the shelf rotate to this shelf
         self.move_to_shelf = Button(self, bg=self.BUTTON_BG, fg="black", text="Go to Shelf Three", command=lambda: self.goToShelfThree())
@@ -861,7 +899,7 @@ class Three(Frame):
         self.remove_error.config(font=listbox_font)
 
         # label to show current shelf
-        self.cur_shelf = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG, text=f"Current Shelf: {current_shelf}")
+        self.cur_shelf = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG, text=f"Current Shelf: {frames[current_shelf]}")
         self.cur_shelf.grid(row=6, column=0, padx=10, pady=10)
         self.cur_shelf.config(font=button_font)
 
@@ -919,7 +957,7 @@ class Three(Frame):
         self.update_label.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
         self.instructions.config(bg=self.BUTTON_BG)
         self.remove_error.config(bg=self.BG_COLOR)
-        self.cur_shelf.config(text=f"Current Shelf: {current_shelf}", bg=self.BG_COLOR, fg=self.LABEL_FG)
+        self.cur_shelf.config(text=f"Current Shelf: {frames[current_shelf]}", bg=self.BG_COLOR, fg=self.LABEL_FG)
 
     # function to rotate the shelves to the third shelf
     # triggers when the mvoe to shelf button is activated
@@ -976,10 +1014,10 @@ class Four(Frame):
         self.grab.grid(row=5, column=2, padx=10, pady=10)
         self.grab.config(font=button_font)
 
-        scroll = Scrollbar(self)
-        scroll.grid(row=1, column=2)
-        self.items.config(yscrollcommand=scroll.set)
-        scroll.config(command=self.items.yview)
+        # scroll = Scrollbar(self)
+        # scroll.grid(row=1, column=2)
+        # self.items.config(yscrollcommand=scroll.set)
+        # scroll.config(command=self.items.yview)
 
         self.move_to_shelf = Button(self, bg=self.BUTTON_BG, fg="black", text="Go to Shelf Four", command=lambda: self.goToShelfFour())
         self.move_to_shelf.grid(row=4, column=0, padx=10, pady=10)
@@ -1009,7 +1047,7 @@ class Four(Frame):
         self.remove_error.config(font=listbox_font)
 
         # label to show current shelf
-        self.cur_shelf = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG, text=f"Current Shelf: {current_shelf}")
+        self.cur_shelf = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG, text=f"Current Shelf: {frames[current_shelf]}")
         self.cur_shelf.grid(row=6, column=0, padx=10, pady=10)
         self.cur_shelf.config(font=button_font)
 
@@ -1065,7 +1103,7 @@ class Four(Frame):
         self.update_label.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
         self.instructions.config(bg=self.BUTTON_BG)
         self.remove_error.config(bg=self.BG_COLOR)
-        self.cur_shelf.config(text=f"Current Shelf: {current_shelf}", bg=self.BG_COLOR, fg=self.LABEL_FG)
+        self.cur_shelf.config(text=f"Current Shelf: {frames[current_shelf]}", bg=self.BG_COLOR, fg=self.LABEL_FG)
 
     def goToShelfFour(self):
         motor.shelfCall(4)
@@ -1120,10 +1158,10 @@ class Five(Frame):
         self.grab.grid(row=5, column=2, padx=10, pady=10)
         self.grab.config(font=button_font)
 
-        scroll = Scrollbar(self)
-        scroll.grid(row=1, column=2)
-        self.items.config(yscrollcommand=scroll.set)
-        scroll.config(command=self.items.yview)
+        # scroll = Scrollbar(self)
+        # scroll.grid(row=1, column=2)
+        # self.items.config(yscrollcommand=scroll.set)
+        # scroll.config(command=self.items.yview)
 
         self.move_to_shelf = Button(self, fg="black", bg=self.BUTTON_BG, text="Go to Shelf Five", command=lambda: self.goToShelfFive())
         self.move_to_shelf.grid(row=4, column=0, padx=10, pady=10)
@@ -1153,7 +1191,7 @@ class Five(Frame):
         self.remove_error.config(font=listbox_font)
 
         # label to show current shelf
-        self.cur_shelf = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG, text=f"Current Shelf: {current_shelf}")
+        self.cur_shelf = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG, text=f"Current Shelf: {frames[current_shelf]}")
         self.cur_shelf.grid(row=6, column=0, padx=10, pady=10)
         self.cur_shelf.config(font=button_font)
 
@@ -1210,7 +1248,7 @@ class Five(Frame):
         self.update_label.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
         self.instructions.config(bg=self.BUTTON_BG)
         self.remove_error.config(bg=self.BG_COLOR)
-        self.cur_shelf.config(bg=self.BG_COLOR, fg=self.LABEL_FG, text=f"Current Shelf: {current_shelf}")
+        self.cur_shelf.config(bg=self.BG_COLOR, fg=self.LABEL_FG, text=f"Current Shelf: {frames[current_shelf]}")
 
     def goToShelfFive(self):
         motor.shelfCall(5)
@@ -1265,10 +1303,10 @@ class Six(Frame):
         self.grab.grid(row=5, column=2, padx=10, pady=10)
         self.grab.config(font=button_font)
 
-        scroll = Scrollbar(self)
-        scroll.grid(row=1, column=2)
-        self.items.config(yscrollcommand=scroll.set)
-        scroll.config(command=self.items.yview)
+        # scroll = Scrollbar(self)
+        # scroll.grid(row=1, column=2)
+        # self.items.config(yscrollcommand=scroll.set)
+        # scroll.config(command=self.items.yview)
 
         self.move_to_shelf = Button(self, fg="black", bg=self.BUTTON_BG, text="Go to Shelf Six", command=lambda: self.goToShelfSix())
         self.move_to_shelf.grid(row=4, column=0, padx=10, pady=10)
@@ -1298,7 +1336,7 @@ class Six(Frame):
         self.remove_error.config(font=listbox_font)
 
         # label to show current shelf
-        self.cur_shelf = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG, text=f"Current Shelf: {current_shelf}")
+        self.cur_shelf = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG, text=f"Current Shelf: {frames[current_shelf]}")
         self.cur_shelf.grid(row=6, column=0, padx=10, pady=10)
         self.cur_shelf.config(font=button_font)
 
@@ -1398,10 +1436,10 @@ class ManageBarcodes(Frame):
             count += 1
         self.items.config(font=listbox_font)
 
-        scroll = Scrollbar(self)
-        scroll.grid(row=2, column=2)
-        self.items.config(yscrollcommand=scroll.set)
-        scroll.config(command=self.items.yview)
+        # scroll = Scrollbar(self)
+        # scroll.grid(row=2, column=2)
+        # self.items.config(yscrollcommand=scroll.set)
+        # scroll.config(command=self.items.yview)
 
         self.field = Entry(self, bg=self.BG_COLOR, fg=self.LABEL_FG)
         self.field.grid(row=3, column=1, padx=10, pady=10)
@@ -1451,7 +1489,7 @@ class ManageBarcodes(Frame):
         self.remove_error.config(font=listbox_font)
 
         # label to show current shelf
-        self.cur_shelf = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG, text=f"Current Shelf: {current_shelf}")
+        self.cur_shelf = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG, text=f"Current Shelf: {frames[current_shelf]}")
         self.cur_shelf.grid(row=0, column=3, padx=10, pady=10)
         self.cur_shelf.config(font=button_font)
 
@@ -1507,7 +1545,7 @@ class ManageBarcodes(Frame):
         self.update_label.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
         self.instructions.config(bg=self.BUTTON_BG)
         self.remove_label.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
-        self.cur_shelf.config(bg=self.BG_COLOR, fg=self.LABEL_FG, text=f"Current Shelf: {current_shelf}")
+        self.cur_shelf.config(bg=self.BG_COLOR, fg=self.LABEL_FG, text=f"Current Shelf: {frames[current_shelf]}")
 
     def getItemName(self, entry):
         self.new_item = entry.get()
@@ -1643,7 +1681,7 @@ class Settings(Frame):
         self.update.config(font=button_font)
 
         # label to show current shelf
-        self.cur_shelf = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG, text=f"Current Shelf: {current_shelf}")
+        self.cur_shelf = Label(self, bg=self.BG_COLOR, fg=self.LABEL_FG, text=f"Current Shelf: {frames[current_shelf]}")
         self.cur_shelf.grid(row=0, column=3, padx=10, pady=10)
         self.cur_shelf.config(font=button_font)
 
@@ -1674,11 +1712,14 @@ class Settings(Frame):
 
     def resetCurShelfPart2(self):
         global current_shelf
+        new_shelf = self.shelf_scroll.get(self.shelf_scroll.curselection())
         try:
-            self.edit_label.config(text="")
-            self.current_shelf_button.grid_forget()
-            new_shelf = self.shelf_scroll.get(self.shelf_scroll.curselection())
-            current_shelf = frames.index(new_shelf)
+            if (new_shelf not in frames[1:7]):
+                self.edit_label.config(text="Select a shelf\nand try again.")
+            else:
+                self.edit_label.config(text="")
+                self.current_shelf_button.grid_forget()
+                current_shelf = frames.index(new_shelf)
         except TclError:
             self.edit_label.config(text="Select a shelf\nand try again.")
 
@@ -1714,10 +1755,14 @@ class Settings(Frame):
         self.select_color.config(bg=self.BUTTON_BG)
         self.edit_field.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
         self.update.config(bg=self.BUTTON_BG)
-        self.cur_shelf.config(bg=self.BG_COLOR, fg=self.LABEL_FG, text=f"Current Shelf: {current_shelf}")
+        self.cur_shelf.config(bg=self.BG_COLOR, fg=self.LABEL_FG, text=f"Current Shelf: {frames[current_shelf]}")
         self.reset_label.config(bg=self.BG_COLOR, fg=self.LABEL_FG)
         self.reset_button.config(bg=self.BUTTON_BG)
         self.current_shelf_button.config(bg=self.BUTTON_BG)
+
+        self.current_shelf_button.grid_forget()
+        self.select_shelf.grid_forget()
+        self.select_color.grid_forget()
 
     def editName(self):
         if (instructions[8]):
